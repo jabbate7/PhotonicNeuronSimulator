@@ -1,3 +1,10 @@
+#models.py
+#Akshay Krishna
+
+# all these functions must have a signature
+# def fun(x, y, **kwargs)
+# and must return an array of the same dimension as y
+
 def Yamada(x, beta):
     #define function equations
     pass

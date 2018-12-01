@@ -26,12 +26,11 @@ class Neuron(object):
         if self.model == 'identity':
             self.dim = 1
             self.f = models.identity
-            
-
+            # for the identity
+            params['mpar'] = {'h': self.dt} 
 
         elif self.model == 'FitzHughNagumo':
-            self.x0 = params.get("x0", 0.0) # initial state
-            # read in the parameters, do some stuff
+            self.dim = 2
             self.f = models.FitzHughNagamo
 
         elif self.model == 'Yamada':
@@ -47,6 +46,9 @@ class Neuron(object):
             raise ValueError(
                 "The initial state has {0:d} dimensions but the {1:s} model has a {2:d}-dim phase space".
                 format(len(self.y), self.model, self.dim))
+
+        mkwargs = params.get('mpar') # read model specific parameters such as tau
+        self.f = lambda x, y : self.f(x, y, **mkwargs)
 
         # set solver
         if self.solver == 'Euler':
@@ -69,7 +71,7 @@ class Neuron(object):
             update history ...
             y_{n+1} = y_n + h f(x_n, y_n)
         """
-        y = x
+        self.y = self.y + self.dt * self.f(x, self.y)
         return y # return output y (t+dt)
 
     def solve(self, x):
