@@ -26,4 +26,4 @@ def identity(x, y, h):
     dy / dt = (x-y) / h
     where h is the Euler time step
     """
-    return (x-y) / h
+    return 1.0*(x-y) / h
