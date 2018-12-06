@@ -5,9 +5,38 @@
 # def fun(x, y, **kwargs)
 # and must return an array of the same dimension as y
 
-def Yamada(x, beta):
-    #define function equations
-    pass
+def Yamada_0(x, y, P=0.8, gamma=1.e-2, kappa=1, beta=1e-3):
+    """
+    Simplified Yamada model with gamma1=gamma2=gamma, a=1, J=G+Q, 
+    y=(I, G, Q), x is input current, P=A+B is Pump rates, 
+    gamma is material decay rate, kappa is cavity loss rate
+    beta is photon noise
+    """
+    return np.array([-kappa*(1-y[1])*y[0])+beta,
+                gamma*(P-(1+y[0])*y[1])+x ])
+
+
+def Yamada_1(x, y, a=2., A=6.5, B=-6., gamma1=1.e-2, gamma2=1e-2, kappa=1, beta=1e-3):
+    """
+    full yamada model with into gain medium
+    y=(I, G, Q), x is input current, A and B are Pump rates, 
+    gamma are material decay rates, kappa is cavity loss rate
+    beta is photon noise
+    """
+    return np.array([-kappa*(1-y[1]-y[2])*y[0])+beta,
+                gamma1*(A-(1+y[0])*y[1])+x,
+                gamma2*(B-(1+a*y[0])*y[2]) ])
+
+def Yamada_2(x, y, a=1., A=6.5, B=-6., gamma1=1.e-2, gamma2=1e-2, kappa=1, beta=1e-3):
+    """
+    full yamada model with direct cavity input
+    y=(I, G, Q), x is input current, A and B are Pump rates, 
+    gamma are material decay rates, kappa is cavity loss rate
+    beta is photon noise
+    """
+    return np.array([-kappa*(1-y[1]-y[2])*y[0])+beta,
+                gamma1*(A-(1+y[0])*y[1])+x,
+                gamma2*(B-(1+a*y[0])*y[2]) ])
 
 def FitzHughNagumo(x, y, a=1.0, b=1.0, tau=1.0):
     """
