@@ -11,6 +11,7 @@ class Neuron(object):
     myneuron = Neuron(params)
     where params is a dict with parameter values, for example
     params = {'model': "FitzHughNagumo", 'y0': [0.0, 0.0]}
+    params = {'model': "Yamada0", 'mpar': {'P': 0.8, 'gamma': 1.e-2, 'kappa': 1, 'beta': 1e-3} }
 
     """
     
@@ -40,8 +41,8 @@ class Neuron(object):
             self.dim = 2
             self.fun = models.FitzHughNagamo
 
-        elif self.model == 'Yamada':
-            self.dim = 3
+        elif self.model == 'Yamada0':
+            self.dim = 2
             self.fun = models.Yamada
 
         else:
@@ -81,7 +82,7 @@ class Neuron(object):
 
         self.hist.append(self.y.copy())
         # trim the history from the back if it grows too big
-        if len(self.hist > self.hist_len): 
+        if len(self.hist) > self.hist_len: 
             _ = self.hist.pop()
 
         return self.y # return output y (t+dt)
@@ -89,9 +90,9 @@ class Neuron(object):
     def solve(self, x):
         """ get the entire output time series of a neuron with input time series x
         """
-        y_out = np.arange(len(x)+1)
+        y_out = np.zeros(len(x))
         y_out[0] = self.y # initial state
-        for i in np.arange(len(x)):
+        for i in np.arange(len(x)-1):
             y_out[i] = self.step(x[i])
 
         return y_out
