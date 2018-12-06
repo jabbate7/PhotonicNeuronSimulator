@@ -8,7 +8,7 @@
 def Yamada_0(x, y, P=0.8, gamma=1.e-2, kappa=1, beta=1e-3):
     """
     Simplified Yamada model with gamma1=gamma2=gamma, a=1, J=G+Q, 
-    y=(I, G, Q), x is input current, P=A+B is Pump rates, 
+    y=(I, J), x is input current, P=A+B is Pump rates, 
     gamma is material decay rate, kappa is cavity loss rate
     beta is photon noise
     """

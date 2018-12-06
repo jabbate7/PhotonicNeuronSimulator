@@ -41,9 +41,9 @@ class Neuron(object):
             self.dim = 2
             self.fun = models.FitzHughNagamo
 
-        elif self.model == 'Yamada0':
+        elif self.model == 'Yamada_0':
             self.dim = 2
-            self.fun = models.Yamada
+            self.fun = models.Yamada_0
 
         else:
             raise ValueError("Not implemented")
