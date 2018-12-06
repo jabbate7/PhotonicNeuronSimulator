@@ -34,8 +34,8 @@ def Yamada_2(x, y, a=1., A=6.5, B=-6., gamma1=1.e-2, gamma2=1e-2, kappa=1, beta=
     gamma are material decay rates, kappa is cavity loss rate
     beta is photon noise
     """
-    return np.array([-kappa*(1-y[1]-y[2])*y[0])+beta,
-                gamma1*(A-(1+y[0])*y[1])+x,
+    return np.array([-kappa*(1-y[1]-y[2])*y[0])+beta+x,
+                gamma1*(A-(1+y[0])*y[1]),
                 gamma2*(B-(1+a*y[0])*y[2]) ])
 
 def FitzHughNagumo(x, y, a=1.0, b=1.0, tau=1.0):
