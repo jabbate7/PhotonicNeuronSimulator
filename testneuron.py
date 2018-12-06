@@ -12,14 +12,14 @@ class TestNeuron(unittest.TestCase):
         Idparams={"model" : "identity", "y0": 0., "dt": 1.e-6}
         IdNeuron=neuron.Neuron(Idparams)
         DCin=2.
-        DCout=IdNeuron.step(Dcin)
+        DCout=IdNeuron.step(DCin)
         self.assertAlmostEqual(DCin, DCout)
 
         #this should work for any step size or initial state
         Idparams2={"model" : "identity", "y0": np.pi, "dt": 1.e2}
         IdNeuron2=neuron.Neuron(Idparams2)
         DCin=2.
-        DCout2=Idneuron2.step(Dcin)
+        DCout2=Idneuron2.step(DCin)
         self.assertAlmostEqual(DCout, DCout2)
 
         #test  neuron.solve for IdNeuron
