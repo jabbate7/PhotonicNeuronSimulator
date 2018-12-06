@@ -12,7 +12,7 @@ def Yamada_0(x, y, P=0.8, gamma=1.e-2, kappa=1, beta=1e-3):
     gamma is material decay rate, kappa is cavity loss rate
     beta is photon noise
     """
-    return np.array([-kappa*(1-y[1])*y[0])+beta,
+    return np.array([-kappa*(1-y[1])*y[0]+beta,
                 gamma*(P-(1+y[0])*y[1])+x ])
 
 
