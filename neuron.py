@@ -73,7 +73,7 @@ class Neuron(object):
         self.hist.insert(0, self.y.copy())
 
         # read model specific parameters such as tau
-        mkwargs = params.get('mpar') 
+        mkwargs = params.get('mpar', {}) 
         # set parameter-agnostic stepping function 
         self.f = lambda x, y : self.fun(x, y, **mkwargs)
 
@@ -124,7 +124,7 @@ class Neuron(object):
         """ get the entire output time series of a neuron with input
         time series x
         """
-        y_out = np.zeros(len(x), self.dim)
+        y_out = np.zeros((len(x), self.dim))
         y_out[0,:] = self.y # initial state
         for i in np.arange(len(x)-1):
             y_out[i,:] = self.step(x[i])
