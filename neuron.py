@@ -27,6 +27,7 @@ class Neuron(object):
         # -- hist_len : length of time history to be stored
 
         self.model = params.get("model", "identity")
+        self.solver = params.get("solver", "Euler")
         self.dt = params.get("dt", 1.0e-6)
         self.hist_len = params.get("hist_len", 10)
         self.hist = []
@@ -45,6 +46,14 @@ class Neuron(object):
         elif self.model == 'Yamada_0':
             self.dim = 2
             self.fun = models.Yamada_0
+
+        elif self.model == 'Yamada_1':
+            self.dim = 3
+            self.fun = models.Yamada_1
+
+        elif self.model == 'Yamada_2':
+            self.dim = 3
+            self.fun = models.Yamada_2
 
         else:
             raise ValueError("Not implemented")
@@ -68,14 +77,20 @@ class Neuron(object):
         # set parameter-agnostic stepping function 
         self.f = lambda x, y : self.fun(x, y, **mkwargs)
 
-        # set solver
-        #if self.solver == 'Euler':
-        #    pass
+        # set solver ...
+        if self.solver == 'Euler':
+            self.step = self.step_Euler
+
+        elif self.solver == 'RK4':
+            self.step = self.step_RK4
+
+        else:
+            raise ValueError("Not implemented")
 
     def __repr__(self):
         return "Neuron of type {0:s}".format(self.type)
 
-    def step(self, x):
+    def step_Euler(self, x):
         """ get the output at the next time step, given an input x
             update history ...
             y_{n+1} = y_n + h f(x_n, y_n)
@@ -89,19 +104,30 @@ class Neuron(object):
 
         return self.y # return output y (t+dt)
 
-    def RK4step(self, x):
+    def step_RK4(self, x):
         """
         RK4 stepper insted of the Euler stepper above
         """
+        k1 = self.f(x, self.y)
+        k2 = 0
+        self.y = self.y + self.dt * self.f(x, self.y)
+
+        self.hist.append(self.y.copy())
+        # trim the history from the back if it grows too big
+        if len(self.hist) > self.hist_len: 
+            _ = self.hist.pop()
+
+        return self.y # return output y (t+dt)
+
 
     def solve(self, x):
         """ get the entire output time series of a neuron with input
         time series x
         """
-        y_out = np.zeros(len(x))
-        y_out[0] = self.y # initial state
+        y_out = np.zeros(len(x), self.dim)
+        y_out[0,:] = self.y # initial state
         for i in np.arange(len(x)-1):
-            y_out[i] = self.step(x[i])
+            y_out[i,:] = self.step(x[i])
 
         return y_out
 
@@ -117,3 +143,9 @@ class Neuron(object):
         size of a time step
         """
         pass
+
+    def set_dt(self, dt):
+        self.dt = dt
+
+    def set_history(self, t_hist):
+        self.hist_len = self.t_hist
