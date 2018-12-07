@@ -108,6 +108,8 @@ class Neuron(object):
         """
         RK4 stepper insted of the Euler stepper above
         """
+        k1 = self.f(x, self.y)
+        k2 = 0
         self.y = self.y + self.dt * self.f(x, self.y)
 
         self.hist.append(self.y.copy())
@@ -117,15 +119,15 @@ class Neuron(object):
 
         return self.y # return output y (t+dt)
 
-        
+
     def solve(self, x):
         """ get the entire output time series of a neuron with input
         time series x
         """
-        y_out = np.zeros(len(x))
-        y_out[0] = self.y # initial state
+        y_out = np.zeros(len(x), self.dim)
+        y_out[0,:] = self.y # initial state
         for i in np.arange(len(x)-1):
-            y_out[i] = self.step(x[i])
+            y_out[i,:] = self.step(x[i])
 
         return y_out
 
@@ -141,3 +143,9 @@ class Neuron(object):
         size of a time step
         """
         pass
+
+    def set_dt(self, dt):
+        self.dt = dt
+
+    def set_history(self, t_hist):
+        self.hist_len = self.t_hist
