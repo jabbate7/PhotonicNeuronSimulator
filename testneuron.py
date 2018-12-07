@@ -31,6 +31,11 @@ class TestNeuron(unittest.TestCase):
 
     def testYamadaSteady(self):
         # test to verify Yamada model neuron goes to steady state
+        # work with Yamada0 first
+        Y0mpars={"P": 0.9, "gamma": 1e-1, "kappa": 2, "beta": 1e-2 }
+        #use completely random initial state
+        Y0params={"model" : "Yamada_0", "y0": np.random.random(2) , "dt": 1.e-6}
+        Y0Neuron=neuron.Neuron(Y0params)
 
         self.assertAlmostEqual(1., 1.)
 
