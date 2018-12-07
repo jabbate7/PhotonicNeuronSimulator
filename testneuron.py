@@ -27,7 +27,7 @@ class TestNeuron(unittest.TestCase):
         Inlength=1e5
         Idin =np.sin(np.linspace(0, 2.*np.pi, Inlength)) 
         Idout=IdNeuron.solve(Idin)
-        npt.assert_array_almost_equal(Idin[1:], Idout[:-1])
+        npt.assert_array_almost_equal(Idin, Idout)
 
     def testYamadaSteady(self):
         # test to verify Yamada model neuron goes to steady state

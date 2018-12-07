@@ -35,7 +35,8 @@ class Neuron(object):
         if self.model == 'identity':
             self.dim = 1
             self.fun = models.identity
-            params['mpar'] = {'h': self.dt} # for the identity, the step parameter h should be the same as dt
+            # for the identity, the step parameter h should be the same as dt
+            params['mpar'] = {'h': self.dt} 
 
         elif self.model == 'FitzHughNagumo':
             self.dim = 2
@@ -43,7 +44,7 @@ class Neuron(object):
 
         elif self.model == 'Yamada0':
             self.dim = 2
-            self.fun = models.Yamada
+            self.fun = models.Yamada0
 
         else:
             raise ValueError("Not implemented")
@@ -56,8 +57,9 @@ class Neuron(object):
             self.y = np.array([self.y])
         if len(self.y) != self.dim:
             raise ValueError(
-                "The initial state has {0:d} dimensions but the {1:s} model has a {2:d}-dim phase space".
-                format(len(self.y), self.model, self.dim))
+                """The initial state has {0:d} dimensions but the {1:s} model 
+                has a {2:d}-dim phase space
+                """.format(len(self.y), self.model, self.dim))
 
         self.hist.insert(0, self.y.copy())
 
@@ -87,8 +89,14 @@ class Neuron(object):
 
         return self.y # return output y (t+dt)
 
+    def RK4step(self, x):
+        """
+        RK4 stepper insted of the Euler stepper above
+        """
+
     def solve(self, x):
-        """ get the entire output time series of a neuron with input time series x
+        """ get the entire output time series of a neuron with input
+        time series x
         """
         y_out = np.zeros(len(x))
         y_out[0] = self.y # initial state
@@ -96,3 +104,16 @@ class Neuron(object):
             y_out[i] = self.step(x[i])
 
         return y_out
+
+    def steady_state(self):
+        """
+        solve for the no-input steady state of the neuron
+        """
+        pass
+
+    def step_t_to_n(self):
+        """
+        convert time to discrete units by dividing a time interval by the 
+        size of a time step
+        """
+        pass
