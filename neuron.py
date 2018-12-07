@@ -32,7 +32,6 @@ class Neuron(object):
         self.dt = params.get("dt", 1.0e-6)
         self.hist_len = params.get("hist_len", 10)
         self.hist = []
-        self.y0 = params.get("y0", np.zeros(self.dim))
 
         # set model ...
         if self.model == 'identity':
@@ -63,6 +62,7 @@ class Neuron(object):
 
         # read initial state
         # default initial state, all zeros
+        self.y0 = params.get("y0", np.zeros(self.dim))
         self.y = params.get("y0", np.zeros(self.dim)) 
         if np.isscalar(self.y):
             self.y = np.array([self.y])
