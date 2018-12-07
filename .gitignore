@@ -3,3 +3,4 @@
 *.pptx
 *.ppt
 .DS_Store
+*.pyc

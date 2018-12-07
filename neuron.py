@@ -7,64 +7,73 @@ import solvers
 class Neuron(object):
     """This is a Neuron object
     Initialize it as 
+    myneuron = Neuron() # default, or
     myneuron = Neuron(params)
     where params is a dict with parameter values, for example
-    params = {'model': "identity", 'x0': 0.0}
+    params = {'model': "FitzHughNagumo", 'y0': [0.0, 0.0]}
+    params = {'model': "Yamada0", 'mpar': {'P': 0.8, 'gamma': 1.e-2, 'kappa': 1, 'beta': 1e-3} }
 
     """
     
-    def __init__(self, params):
+    def __init__(self, params={}):
         # constructor to initialize a Neuron
+        # attributes:
+        # -- model    : name of function implemented by neuron
+        # -- dim      : dimensionality of phase space of model
+        # -- dt       : time step
+        # -- y        : current (most recent) state  
+        # -- hist     : list of most recent states 
+        #               hist[0] = y(t); hist[1] = y(t-dt); and so on
+        # -- hist_len : length of time history to be stored
+
         self.model = params.get("model", "identity")
         self.dt = params.get("dt", 1.0e-6)
-        self.dim # number of dimensions of phase space
-        self.y
-        self.history_len = params.get("history_len", 10)
-
+        self.hist_len = params.get("hist_len", 10)
+        self.hist = []
 
         # set model ...
         if self.model == 'identity':
             self.dim = 1
-            self.f = models.identity
-            # for the identity
+            self.fun = models.identity
+            # for the identity, the step parameter h should be the same as dt
             params['mpar'] = {'h': self.dt} 
 
         elif self.model == 'FitzHughNagumo':
             self.dim = 2
-            self.f = models.FitzHughNagamo
+            self.fun = models.FitzHughNagamo
 
-        elif self.model == 'Yamada':
-            self.x0 = params.get("x0", 0.0) # initial state
-            self.f = models.Yamada
+        elif self.model == 'Yamada_0':
+            self.dim = 2
+            self.fun = models.Yamada_0
 
         else:
             raise ValueError("Not implemented")
 
 
-        self.y = params.get("initial_state", np.zeros(self.dim)) # default initial state, all zeros
-        if len(self.y) != self.dim
+        # read initial state
+        # default initial state, all zeros
+        self.y = params.get("y0", np.zeros(self.dim)) 
+        if np.isscalar(self.y):
+            self.y = np.array([self.y])
+        if len(self.y) != self.dim:
             raise ValueError(
-                "The initial state has {0:d} dimensions but the {1:s} model has a {2:d}-dim phase space".
-                format(len(self.y), self.model, self.dim))
+                """The initial state has {0:d} dimensions but the {1:s} model 
+                has a {2:d}-dim phase space
+                """.format(len(self.y), self.model, self.dim))
 
-        mkwargs = params.get('mpar') # read model specific parameters such as tau
-        self.f = lambda x, y : self.f(x, y, **mkwargs)
+        self.hist.insert(0, self.y.copy())
+
+        # read model specific parameters such as tau
+        mkwargs = params.get('mpar') 
+        # set parameter-agnostic stepping function 
+        self.f = lambda x, y : self.fun(x, y, **mkwargs)
 
         # set solver
-        if self.solver == 'Euler':
-            pass
-
-        elif self.solver == 'RK4':
-            pass
-
-        else:
-            # raise an exception (not implemented)
-            pass
-
+        #if self.solver == 'Euler':
+        #    pass
 
     def __repr__(self):
-        # how to print a Neuron
-        pass
+        return "Neuron of type {0:s}".format(self.type)
 
     def step(self, x):
         """ get the output at the next time step, given an input x
@@ -72,11 +81,39 @@ class Neuron(object):
             y_{n+1} = y_n + h f(x_n, y_n)
         """
         self.y = self.y + self.dt * self.f(x, self.y)
-        return y # return output y (t+dt)
+
+        self.hist.append(self.y.copy())
+        # trim the history from the back if it grows too big
+        if len(self.hist) > self.hist_len: 
+            _ = self.hist.pop()
+
+        return self.y # return output y (t+dt)
+
+    def RK4step(self, x):
+        """
+        RK4 stepper insted of the Euler stepper above
+        """
 
     def solve(self, x):
-        """ get the entire output time series of a neuron with input time series x
+        """ get the entire output time series of a neuron with input
+        time series x
+        """
+        y_out = np.zeros(len(x))
+        y_out[0] = self.y # initial state
+        for i in np.arange(len(x)-1):
+            y_out[i] = self.step(x[i])
+
+        return y_out
+
+    def steady_state(self):
+        """
+        solve for the no-input steady state of the neuron
         """
         pass
 
-        #pass
+    def step_t_to_n(self):
+        """
+        convert time to discrete units by dividing a time interval by the 
+        size of a time step
+        """
+        pass
