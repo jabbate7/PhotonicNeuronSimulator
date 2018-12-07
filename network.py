@@ -1,5 +1,4 @@
 from neuron import Neuron
-from scipy.sparse import csr_matrix
 
 # A network is a specific topology of Neurons
 class Network:
@@ -46,6 +45,9 @@ class Network:
         return inputs
                 
     def network_step(external_inputs, self):
+        external_inputs = np.atleast_1d(external_inputs)
+        msg="Please specify {d} inputs in an array".format(d=self.num_inputs)
+        assert(len(external_inputs)==self.num_inputs, msg)
         # update the state of each neuron 
         neuron_inputs = generate_neuron_inputs(external_inputs)
         for i,neuron in enumerate(self.neurons):
@@ -61,14 +63,18 @@ class Network:
         pass
         
 # List of Neuron objects
-neur_1=Neuron({'x0': 0})
-neurons=[neur_1,neur_2,neur_3]
+neur_1=Neuron()
+neur_2=Neuron()
+neurons=[neur_1,neur_2]
 # Weight matrix
 # Input goes 1, 1 goes to 2, 2 goes to 3, 3 goes to output
-W=[[1,0,0],[0,1,0]]
+weights=[[1,0,0],[0,1,0]]
 # Time delay matrix
 # No time delays
-T=[[1,0,0],[0,10,0]]
+delays=[[0,1],[0,0]]
 dt=1
 
-net = Network()
+net = Network(neurons, weights, delays, dt)
+
+print(net)
+print(net.network_step(1))
