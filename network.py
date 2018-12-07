@@ -45,7 +45,7 @@ class Network:
                     inputs[row] += self.weights[row][col]*get_prev_output(row,col)
         return inputs
                 
-    def propagate(external_inputs, self):
+    def network_step(external_inputs, self):
         # update the state of each neuron 
         neuron_inputs = generate_neuron_inputs(external_inputs)
         for i,neuron in enumerate(self.neurons):
@@ -61,7 +61,7 @@ class Network:
         pass
         
 # List of Neuron objects
-neur_1=Neuron({'x0': 0, })
+neur_1=Neuron({'x0': 0})
 neurons=[neur_1,neur_2,neur_3]
 # Weight matrix
 # Input goes 1, 1 goes to 2, 2 goes to 3, 3 goes to output

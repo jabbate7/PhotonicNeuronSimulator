@@ -5,12 +5,18 @@ Once initialized, a Network's primary method is to take in a set of signals at a
 
 ### Defining connections
 
-A network can be thought of as a system with $N+I$ "nodes" and $(N+I)^2$ "connections" between them, where $N$ is the number of neurons and $I$ is the number of inputs. 
+A network can be thought of as a system of inputs and outputs. 
+
+To construct your W matrix, consider the examples in the following images. 
 
 ![Alt text](graphics/simple_network.png "Simple network")
-
-To build your W and T matrices, consider the example in the image above. Read this as "neuron 1 (leftmost array) takes from input, neuron 2 (inner array) takes from neuron 1, output takes from neuron 2".
 
 ![Alt text](graphics/complex_network.png "Complicated network")
 
 ![Alt text](graphics/multi_input_network.png "Multi-input network")
+
+Each row corresponds to a neuron. Each column corresponds to an input source, with the raw inputs coming first and the neurons coming second. The element of W in row i and column j should be interpreted as "neuron i gets its input from input-source j". 
+
+The time delay matrix is simpler. In a similar way, the element of T in row i and column j should be interpreted as "neuron i gets its input from neuron j".
+
+![Alt text](graphics/time_delay_example.png "Time delay matrix format")
