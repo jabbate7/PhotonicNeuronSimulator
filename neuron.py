@@ -3,6 +3,7 @@
 import numpy as np
 import models
 import solvers
+import scipy as sp
 
 class Neuron(object):
     """This is a Neuron object
@@ -31,6 +32,7 @@ class Neuron(object):
         self.dt = params.get("dt", 1.0e-6)
         self.hist_len = params.get("hist_len", 10)
         self.hist = []
+        self.y0 = params.get("y0", np.zeros(self.dim))
 
         # set model ...
         if self.model == 'identity':
@@ -135,7 +137,12 @@ class Neuron(object):
         """
         solve for the no-input steady state of the neuron
         """
-        pass
+        ODEs=lambda y: self.f(0, y) #assume zero input
+        yguess=self.y0
+        Root=sp.optimize.fsolve(ODEs, Root)
+        #should probably write stuff here at one point so catches unphysical roots
+        #also many of these systems have multistability so may not return the root we want
+        return Root
 
     def step_t_to_n(self):
         """
