@@ -60,8 +60,8 @@ class Neuron(object):
 
 
         # read initial state
-        # default initial state, all zeros
-        self.y = params.get("y0", np.zeros(self.dim)) 
+        self.y0 = params.get("y0", np.zeros(self.dim))
+        self.y = self.y0.copy() 
         if np.isscalar(self.y):
             self.y = np.array([self.y])
         if len(self.y) != self.dim:
@@ -148,4 +148,4 @@ class Neuron(object):
         self.dt = dt
 
     def set_history(self, t_hist):
-        self.hist_len = self.t_hist
+        self.hist_len = t_hist
