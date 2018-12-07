@@ -127,7 +127,7 @@ class Neuron(object):
         y_out = np.zeros((len(x), self.dim))
         y_out[0,:] = self.y # initial state
         for i in np.arange(len(x)-1):
-            y_out[i,:] = self.step(x[i])
+            y_out[i+1,:] = self.step(x[i])
 
         return y_out
 
