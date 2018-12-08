@@ -3,8 +3,7 @@
 import numpy as np
 import models
 import solvers
-import scipy as sp
-
+from scipy import optimize
 class Neuron(object):
     """This is a Neuron object
     Initialize it as 
@@ -63,10 +62,13 @@ class Neuron(object):
         # read initial state
         # default initial state, all zeros
         self.y0 = params.get("y0", np.zeros(self.dim))
-        self.y = self.y0.copy() 
+    
 
-        if np.isscalar(self.y):
-            self.y = np.array([self.y])
+        if np.isscalar(self.y0):
+            self.y = np.array([self.y0])
+        else:
+            self.y = self.y0.copy() 
+
         if len(self.y) != self.dim:
             raise ValueError(
                 """The initial state has {0:d} dimensions but the {1:s} model 
@@ -140,7 +142,7 @@ class Neuron(object):
         """
         ODEs=lambda y: self.f(0, y) #assume zero input
         yguess=self.y0
-        Root=sp.optimize.fsolve(ODEs, Root)
+        Root=optimize.fsolve(ODEs, yguess)
         #should probably write stuff here at one point so catches unphysical roots
         #also many of these systems have multistability so may not return the root we want
         return Root
