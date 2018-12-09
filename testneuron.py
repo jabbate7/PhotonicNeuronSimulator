@@ -25,24 +25,39 @@ class TestNeuron(unittest.TestCase):
 
         #test  neuron.solve for IdNeuron
         Inlength=1e5
-        Idin =np.sin(np.linspace(0, 2.*np.pi, Inlength)) 
+        Idin =np.sin(np.linspace(0, 2.*np.pi, int(Inlength))) 
         Idout=IdNeuron.solve(Idin)
-        npt.assert_array_almost_equal(Idin, Idout)
+        npt.assert_array_almost_equal(Idin[:-1,np.newaxis], Idout[1:])
 
     def testYamadaSteady(self):
         # test to verify Yamada model neuron goes to steady state
         # work with Yamada0 first
         Y0mpars={"P": 0.9, "gamma": 1e-1, "kappa": 2, "beta": 1e-2 }
         #use completely random initial state
-        Y0params={"model" : "Yamada_0", "y0": np.random.random(2) , "dt": 1.e-6}
+        Y0params={"model" : "Yamada_0", "y0": np.random.random(2) ,
+             "dt": 1.e-3, 'mpar': Y0mpars}
         Y0Neuron=neuron.Neuron(Y0params)
-
-        self.assertAlmostEqual(1., 1.)
+        # have state decay a bunch
+        N=int(np.ceil(100/Y0Neuron.dt))
+        x=np.zeros(N)
+        y_out=Y0Neuron.solve(x)
+        # also tests that steady state solver works
+        y_steady=Y0Neuron.steady_state()
+        npt.assert_array_almost_equal(y_out[-1, :], y_steady)
+        #should also write test for another yamada type here probably
 
     def testYamadaSpike(self):
         # test to verify Yamada neuron spikes if given an input above threshold
-
-        self.assertAlmostEqual(1., 1.)
+        Y0mpars={"P": 0.9, "gamma": 1e-1, "kappa": 2, "beta": 1e-2 }
+        #use completely random initial state
+        Y0params={"model" : "Yamada_0", "y0": np.random.random(2) ,
+             "dt": 1.e-3, 'mpar': Y0mpars}
+        Y0Neuron=neuron.Neuron(Y0params)
+        # have state decay a bunch
+        N=int(np.ceil(100/Y0Neuron.dt))
+        x=np.zeros(N)
+        y_out=Y0Neuron.solve(x)
+        npt.assert_array_almost_equal(y_out[-1, :], y_out[-1, :])
 
     def testYamadaPulsing(self):
         # test to verify Yamada pulses if given continuous input above threshold

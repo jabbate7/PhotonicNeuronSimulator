@@ -3,7 +3,7 @@
 import numpy as np
 import models
 import solvers
-
+from scipy import optimize
 class Neuron(object):
     """This is a Neuron object
     Initialize it as 
@@ -61,9 +61,14 @@ class Neuron(object):
 
         # read initial state
         # default initial state, all zeros
-        self.y = params.get("y0", np.zeros(self.dim)) 
-        if np.isscalar(self.y):
-            self.y = np.array([self.y])
+        self.y0 = params.get("y0", np.zeros(self.dim))
+    
+
+        if np.isscalar(self.y0):
+            self.y = np.array([self.y0])
+        else:
+            self.y = self.y0.copy() 
+
         if len(self.y) != self.dim:
             raise ValueError(
                 """The initial state has {0:d} dimensions but the {1:s} model 
@@ -127,7 +132,7 @@ class Neuron(object):
         y_out = np.zeros((len(x), self.dim))
         y_out[0,:] = self.y # initial state
         for i in np.arange(len(x)-1):
-            y_out[i,:] = self.step(x[i])
+            y_out[i+1,:] = self.step(x[i])
 
         return y_out
 
@@ -135,7 +140,12 @@ class Neuron(object):
         """
         solve for the no-input steady state of the neuron
         """
-        pass
+        ODEs=lambda y: self.f(0, y) #assume zero input
+        yguess=self.y0
+        Root=optimize.fsolve(ODEs, yguess)
+        #should probably write stuff here at one point so catches unphysical roots
+        #also many of these systems have multistability so may not return the root we want
+        return Root
 
     def step_t_to_n(self):
         """
