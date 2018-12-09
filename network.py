@@ -14,15 +14,23 @@ class Network:
     see the readme for structure of "weights" and "delays"
     """
         
-    def __init__(self, neurons, weights, delays, dt):
+    def __init__(self, neurons, weights, delays=None, dt=None):
         self.neurons=neurons
         self.weights=weights
-        self.delays=delays
-        self.dt=dt
+        if (dt is not None):
+            self.dt=dt
+        else:
+            self.dt=neurons[0].dt
         
         self.num_neurons = np.shape(weights)[0]
         self.num_inputs = np.shape(weights)[1]-self.num_neurons
-        max_times = np.apply_along_axis(lambda x: max(x), 0, delays)
+
+        if (delays is not None):
+            self.delays=delays
+        else:
+            self.delays = np.zeros((self.num_neurons,self.num_neurons),dtype=int)
+        
+        max_times = np.apply_along_axis(lambda x: max(x), 0, self.delays)
         
         # set up each neuron with dt and necessary history
         for i,neuron in enumerate(neurons):
@@ -76,12 +84,11 @@ neurons=[neur_1,neur_2]
 weights=[[1,0,0],[0,1,0]]
 # Time delay matrix
 # No time delays
-delays=[[0,1],[0,0]]
+#delays=[[0,1],[0,0]]
 
-dt=1e-6
-
-net = Network(neurons, weights, delays, dt)
+net = Network(neurons, weights)
 
 print(net)
+print(net.network_step(1))
 print(net.network_step(1))
 print(net.network_step(1))
