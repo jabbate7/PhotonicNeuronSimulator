@@ -93,7 +93,7 @@ class Neuron(object):
             raise ValueError("Not implemented")
 
     def __repr__(self):
-        return "Neuron of type {0:s}".format(self.type)
+        return "Neuron of type {0:s}".format(self.model)
 
     def step_Euler(self, x):
         """ get the output at the next time step, given an input x

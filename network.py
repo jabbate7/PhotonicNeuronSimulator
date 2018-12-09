@@ -39,8 +39,8 @@ class Network:
         # an internal function to get the inputs needed to 
         # update neuron states 
         inputs=np.zeros(self.num_neurons)
-        for row in range(len(self.weights)):
-            for col in range(len(self.weights)):
+        for row in range(self.num_neurons):
+            for col in range(self.num_neurons+self.num_inputs):
                 if self.weights[row][col] != 0:
                     inputs[row] += self.weights[row][col]*get_prev_output(row,col)
         return inputs
@@ -55,6 +55,9 @@ class Network:
         for i,neuron in enumerate(self.neurons):
             neuron_outputs[i]=neuron.step(neuron_inputs[i])
         return (external_inputs, neuron_outputs)
+
+    def __repr__(self):
+        return '{}-input, {}-neuron network'.format(self.num_inputs, self.num_neurons)
 
     def return_states(self):
         # return the state of the network (by querying each neuron)
@@ -74,11 +77,11 @@ weights=[[1,0,0],[0,1,0]]
 # Time delay matrix
 # No time delays
 delays=[[0,1],[0,0]]
-dt=1
+
+dt=1e-6
 
 net = Network(neurons, weights, delays, dt)
 
 print(net)
-import pdb; pdb.set_trace()
 print(net.network_step(1))
 print(net.network_step(1))
