@@ -74,21 +74,3 @@ class Network:
     def visualize(self):
         # visualize the network
         pass
-        
-# List of Neuron objects
-neur_1=Neuron()
-neur_2=Neuron()
-neurons=[neur_1,neur_2]
-# Weight matrix
-# Input goes 1, 1 goes to 2, 2 goes to 3, 3 goes to output
-weights=[[1,0,0],[0,1,0]]
-# Time delay matrix
-# No time delays
-#delays=[[0,1],[0,0]]
-
-net = Network(neurons, weights)
-
-print(net)
-print(net.network_step(1))
-print(net.network_step(1))
-print(net.network_step(1))
