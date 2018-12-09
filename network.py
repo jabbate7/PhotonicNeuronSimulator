@@ -1,4 +1,5 @@
 from neuron import Neuron
+import numpy as np
 
 # A network is a specific topology of Neurons
 class Network:
@@ -28,28 +29,29 @@ class Network:
             neuron.set_history(max_times[i])
             neuron.set_dt(self.dt)
             
-    def generate_neuron_inputs(external_inputs, self):
+    def generate_neuron_inputs(self, external_inputs):
         def get_prev_output(row, col):
             if col < self.num_inputs:
                 return external_inputs[col]
             else:
-                return self.neurons[row].hist(self.delays[row][col+self.num_inputs])
+                return self.neurons[row].hist[self.delays[row][col+self.num_inputs-1]]
         
         # an internal function to get the inputs needed to 
         # update neuron states 
-        inputs=np.zeros(num_neurons)
-        for row in self.weights:
-            for col in self.weights:
+        inputs=np.zeros(self.num_neurons)
+        for row in range(len(self.weights)):
+            for col in range(len(self.weights)):
                 if self.weights[row][col] != 0:
                     inputs[row] += self.weights[row][col]*get_prev_output(row,col)
         return inputs
                 
-    def network_step(external_inputs, self):
+    def network_step(self,external_inputs):
         external_inputs = np.atleast_1d(external_inputs)
-        msg="Please specify {d} inputs in an array".format(d=self.num_inputs)
-        assert(len(external_inputs)==self.num_inputs, msg)
+        msg="Please specify {} inputs in an array".format(self.num_inputs)
+        assert (len(external_inputs)==int(self.num_inputs)), msg
         # update the state of each neuron 
-        neuron_inputs = generate_neuron_inputs(external_inputs)
+        neuron_inputs = self.generate_neuron_inputs(external_inputs)
+        neuron_outputs = np.zeros(self.num_neurons)
         for i,neuron in enumerate(self.neurons):
             neuron_outputs[i]=neuron.step(neuron_inputs[i])
         return (external_inputs, neuron_outputs)
@@ -77,4 +79,6 @@ dt=1
 net = Network(neurons, weights, delays, dt)
 
 print(net)
+import pdb; pdb.set_trace()
+print(net.network_step(1))
 print(net.network_step(1))

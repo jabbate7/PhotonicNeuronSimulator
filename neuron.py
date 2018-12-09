@@ -148,4 +148,4 @@ class Neuron(object):
         self.dt = dt
 
     def set_history(self, t_hist):
-        self.hist_len = self.t_hist
+        self.hist_len = t_hist
