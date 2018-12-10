@@ -4,7 +4,7 @@ import numpy.testing as npt
 import neuron
 import models
 import solvers
-import numpy.testing as npt
+import scipy.signal as sig
 
 class TestNeuron(unittest.TestCase):
     def testIdentity(self):
@@ -42,7 +42,7 @@ class TestNeuron(unittest.TestCase):
         x=np.zeros(N)
         y_out=Y0Neuron.solve(x)
         # also tests that steady state solver works
-        y_steady=Y0Neuron.steady_state(Y0Neuron.y0)
+        y_steady=Y0Neuron.steady_state([Y0mpars['beta']/Y0mpars['kappa'], Y0mpars['P']])
         npt.assert_array_almost_equal(y_out[-1, :], y_steady)
         #should also write test for another yamada type here probably
         Y1mpars={"a": 2, "A": 6.3, "B":-6.,
@@ -65,22 +65,79 @@ class TestNeuron(unittest.TestCase):
 
     def testYamadaSpike(self):
         # test to verify Yamada neuron spikes if given an input above threshold
-        Y0mpars={"P": 0.9, "gamma": 1e-1, "kappa": 2, "beta": 1e-2 }
-        #use completely random initial state
-        Y0params={"model" : "Yamada_0", "y0": np.random.random(2) ,
-             "dt": 1.e-3, 'mpar': Y0mpars}
-        Y0Neuron=neuron.Neuron(Y0params)
-        # have state decay a bunch
-        N=int(np.ceil(100/Y0Neuron.dt))
-        x=np.zeros(N)
-        y_out=Y0Neuron.solve(x)
-        npt.assert_array_almost_equal(y_out[-1, :], y_out[-1, :], )
+        Gaussian_pulse= lambda x, mu, sig: np.exp(-np.power(x - mu, 2.) 
+            / (2 * np.power(sig, 2.)))/(np.sqrt(2*np.pi)*sig)
+
+        Y1mpars={"a": 2, "A": 6.5, "B":-6., "gamma1": 1e-1,
+         "gamma2": 1e-1, "kappa": 2, "beta": 1e-2 }
+        y1_steady_est=[Y1mpars['beta']/Y1mpars['kappa'],
+            Y1mpars['A'],Y1mpars['B'] ]
+        Y1params={"model" : "Yamada_1", "y0": y1_steady_est,
+        "dt": 1.e-2, 'mpar': Y1mpars} #close enough to steady state
+        Y1Neuron=neuron.Neuron(Y1params)
+        y1_steady=Y1Neuron.steady_state(y1_steady_est)
+
+        #create time signal
+        t1_end=10./Y1mpars["gamma1"]; #atleast this long
+        N1=int(np.ceil(t1_end/Y1Neuron.dt))
+        time1=np.linspace(0.,(N1-1)*Y1Neuron.dt, num=N1 )
+        x1=Gaussian_pulse(time1, 0.5/Y1mpars["gamma1"], 1.)
+
+        # create neuron, solve
+        y1_out=Y1Neuron.solve(x1)
+        #peak height scales roughly as kappa/gamma1
+        # so roughly spikes if max of the signal> ~kappa/gamma2
+        # also make sure returns to steady state
+        self.assertGreaterEqual(np.max(y1_out[:,0]), 0.5*Y1mpars["kappa"]/Y1mpars["gamma1"])
+        npt.assert_array_almost_equal(y1_out[-1, :], y1_steady, decimal=2)
+
 
     def testYamadaPulsing(self):
         # test to verify Yamada pulses if given continuous input above threshold
         # also increase input and verify pulse period decreases
 
-        self.assertAlmostEqual(1., 1.)
+
+        Y1mpars={"a": 1.8, "A": 5.7, "B":-5., "gamma1": 1e-2,
+         "gamma2": 1e-2, "kappa": 1, "beta": 1e-3 }
+        y1_steady_est=[Y1mpars['beta']/Y1mpars['kappa'],
+            Y1mpars['A'],Y1mpars['B'] ]
+        Y1params={"model" : "Yamada_1", "y0": y1_steady_est,
+        "dt": 1.e-2, 'mpar': Y1mpars} #close enough to steady state
+        Y1Neuron=neuron.Neuron(Y1params)
+        y1_steady=Y1Neuron.steady_state(y1_steady_est)
+
+        #create time signal
+        t1_end=10./Y1mpars["gamma1"]; #atleast this long
+        N1=int(np.ceil(t1_end/Y1Neuron.dt))
+        time1=np.linspace(0.,(N1-1)*Y1Neuron.dt, num=N1 )
+        x1=np.zeros(N1)
+        #make sure x1 amplitude is sufficient for spiking
+        switchtime=8./Y1mpars["gamma1"] #increase drive at this point
+        x1+=(0.5*Y1mpars["gamma1"])*np.heaviside(time1-0.5/Y1mpars["gamma1"], 0.5)
+        x1+=(1.5*Y1mpars["gamma1"])*np.heaviside(time1-switchtime, 0.5)
+        
+        y1_out=Y1Neuron.solve(x1)
+
+        (peaks, props) = sig.find_peaks(y1_out[:,0], height=1e-2*Y1mpars["kappa"]/Y1mpars["gamma1"])
+        peaktimes=time1[peaks]
+        self.assertGreaterEqual(peaktimes.size, 2) #assert spiked atleast twice
+
+        (peaktimes1, peaktimes2)=(np.array([]), np.array([]))
+        for (i, time) in enumerate(peaktimes):
+            if time <= switchtime:
+                peaktimes1=np.append(peaktimes1,time)
+            else:
+                peaktimes2=np.append(peaktimes2,time)
+        if peaktimes1.size<2 or peaktimes2.size<2:
+            raise Exception("Not enough spikes to determine period")
+
+        (per1, per2)=(np.mean(np.diff(peaktimes1)), np.mean(np.diff(peaktimes2)))
+
+        self.assertGreaterEqual(peaktimes.size, 2) #assert spiked faster in part 2
+
+
+
+
 
 if __name__ == "__main__":
     unittest.main()
