@@ -13,41 +13,41 @@ class TestNeuronTimeDelay(unittest.TestCase):
     def testHist(self):
         hist_len_1=10
         self.neur.set_history(hist_len_1)
-        self.assertEqual(hist_len_1, len(neur.hist))
+        self.assertEqual(hist_len_1, len(self.neur.hist))
         hist_len_2=20
         self.neur.set_history(hist_len_2)
-        self.assertEqual(hist_len_2, len(neur.hist))
+        self.assertEqual(hist_len_2, len(self.neur.hist))
     
     def testDT(self):
         dt_1=10
         self.neur.set_dt(dt_1)
-        self.assertEqual(dt_1, neur.dt)
+        self.assertEqual(dt_1, self.neur.dt)
         dt_2=20
         self.neur.set_dt(dt_2)
-        self.assertEqual(dt_2, neur.dt)
+        self.assertEqual(dt_2, self.neur.dt)
         
     # make sure the history array kept by the neuron (1) works
     # and (2) properly "circulates", i.e. kicks values out
     def testHist(self):
         self.neur.set_history(2)
         input_1=1
-        neur.step(input_1)
-        self.assertAlmostEqual(neur.hist[0],input_1)
+        self.neur.step(input_1)
+        self.assertAlmostEqual(self.neur.hist[0],input_1)
 
         input_2=2
-        neur.step(input_2)
-        self.assertAlmostEqual(neur.hist[0],input_2)
-        self.assertAlmostEqual(neur.hist[1],input_1)
+        self.neur.step(input_2)
+        self.assertAlmostEqual(self.neur.hist[0],input_2)
+        self.assertAlmostEqual(self.neur.hist[1],input_1)
 
         input_3=3
-        neur.step(input_3)
-        self.assertAlmostEqual(neur.hist[0],input_3)
-        self.assertAlmostEqual(neur.hist[1],input_2)
+        self.neur.step(input_3)
+        self.assertAlmostEqual(self.neur.hist[0],input_3)
+        self.assertAlmostEqual(self.neur.hist[1],input_2)
 
     def testHistError(self):
         self.neur.set_history(1)
         with self.assertRaises(Exception):
-            neur.hist[1]
+            self.neur.hist[1]
 
 class TestNeuron(unittest.TestCase):
     def testIdentity(self):
