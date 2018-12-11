@@ -21,6 +21,7 @@ class Neuron(object):
         # -- model    : name of function implemented by neuron
         # -- dim      : dimensionality of phase space of model
         # -- dt       : time step
+        # -- y0       : initial
         # -- y        : current (most recent) state  
         # -- hist     : list of most recent states 
         #               hist[0] = y(t); hist[1] = y(t-dt); and so on
@@ -28,16 +29,49 @@ class Neuron(object):
 
         self.model = params.get("model", "identity")
         self.solver = params.get("solver", "Euler")
-        self.dt = params.get("dt", 1.0e-6)
-        self.hist_len = params.get("hist_len", 10)
-        self.hist = []
 
         # set model ...
+        self.set_model()
+
+        # set initial state, default: all zeros
+        self.set_initial_state(params.get("y0", np.zeros(self.dim)))
+
+        self.set_history(params.get("hist_len", 10))
+
+        self.set_dt(params.get("dt", 1.0e-6))
+        
+        # read model specific parameters such as tau
+        self.set_model_params(params.get('mpar', {}))
+
+        # set solver ...
+        if self.solver == 'Euler':
+            self.step = self.step_Euler
+        elif self.solver == 'RK4':
+            self.step = self.step_RK4
+        else:
+            raise ValueError("Not implemented")
+
+    def __repr__(self):
+        return "Neuron of type {0:s}".format(self.type)
+
+    #####  CONSTRUCTOR HELPER FUNCTIONS  #####
+
+    def set_dt(self, dt):
+        self.dt = dt
+        # for the identity, the step parameter h should be the same as dt
+        if self.model == "identity":
+            self.set_model_params({'h': self.dt})
+
+    def set_history(self, hist_len):
+        self.hist_len = hist_len
+
+    def set_model(self):
+        """
+        constructor helper function
+        """
         if self.model == 'identity':
             self.dim = 1
             self.fun = models.identity
-            # for the identity, the step parameter h should be the same as dt
-            params['mpar'] = {'h': self.dt} 
 
         elif self.model == 'FitzHughNagumo':
             self.dim = 2
@@ -58,11 +92,12 @@ class Neuron(object):
         else:
             raise ValueError("Not implemented")
 
-
-        # read initial state
-        # default initial state, all zeros
-        self.y0 = params.get("y0", np.zeros(self.dim))
-    
+    def set_initial_state(self, y0):
+        """
+        set initial conditions
+        """
+        self.hist = []
+        self.y0 = y0
 
         if np.isscalar(self.y0):
             self.y = np.array([self.y0])
@@ -77,23 +112,14 @@ class Neuron(object):
 
         self.hist.insert(0, self.y.copy())
 
-        # read model specific parameters such as tau
-        mkwargs = params.get('mpar', {}) 
-        # set parameter-agnostic stepping function 
+    def set_model_params(self, mkwargs):
+        """
+        set parameter-agnostic stepping function 
+        """
         self.f = lambda x, y : self.fun(x, y, **mkwargs)
 
-        # set solver ...
-        if self.solver == 'Euler':
-            self.step = self.step_Euler
 
-        elif self.solver == 'RK4':
-            self.step = self.step_RK4
-
-        else:
-            raise ValueError("Not implemented")
-
-    def __repr__(self):
-        return "Neuron of type {0:s}".format(self.type)
+    #### STEPPER FUNCTIONS (THE HEART OF THE ODE SOLVER) ####
 
     def step_Euler(self, x):
         """ get the output at the next time step, given an input x
@@ -153,9 +179,3 @@ class Neuron(object):
         size of a time step
         """
         pass
-
-    def set_dt(self, dt):
-        self.dt = dt
-
-    def set_history(self, t_hist):
-        self.hist_len = t_hist
