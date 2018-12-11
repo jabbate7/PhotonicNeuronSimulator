@@ -42,7 +42,11 @@ class Network:
             if col < self.num_inputs:
                 return external_inputs[col]
             else:
-                return self.neurons[row].hist[self.delays[row][col+self.num_inputs-1]]
+                try: 
+                    self.neurons[col].hist[self.delays[row][col-self.num_inputs]]
+                except:
+                    import pdb; pdb.set_trace()
+                return self.neurons[col].hist[self.delays[row][col-self.num_inputs]]
         
         # an internal function to get the inputs needed to 
         # update neuron states 

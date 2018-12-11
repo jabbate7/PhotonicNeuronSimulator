@@ -102,7 +102,7 @@ class Neuron(object):
         """
         self.y = self.y + self.dt * self.f(x, self.y)
 
-        self.hist.append(self.y.copy())
+        self.hist.insert(0,self.y.copy())
         # trim the history from the back if it grows too big
         if len(self.hist) > self.hist_len: 
             _ = self.hist.pop()
