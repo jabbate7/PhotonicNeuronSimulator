@@ -30,8 +30,8 @@ class Network:
         else:
             self.delays = np.zeros((self.num_neurons,self.num_neurons),dtype=int)
         
-        max_times = np.apply_along_axis(lambda x: max(x), 0, self.delays)
-        
+        max_times = np.apply_along_axis(lambda x: max(x)+1, 0, self.delays)
+#        import pdb; pdb.set_trace()
         # set up each neuron with dt and necessary history
         for i,neuron in enumerate(neurons):
             neuron.set_history(max_times[i])
@@ -42,7 +42,9 @@ class Network:
             if col < self.num_inputs:
                 return external_inputs[col]
             else:
-                return self.neurons[col].hist[self.delays[row][col-self.num_inputs]]
+                col = col - self.num_inputs
+#                import pdb; pdb.set_trace()
+                return self.neurons[col].hist[self.delays[row][col]]
         
         # an internal function to get the inputs needed to 
         # update neuron states 

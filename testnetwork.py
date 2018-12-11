@@ -27,23 +27,36 @@ class SimpleTestCase(unittest.TestCase):
 
         net = Network(self.neurons, self.weights)
         
+        input_1=1
         output = net.network_step(1)
-        
-        self.assertAlmostEqual(output[0], 1.) # the input
-        self.assertAlmostEqual(output[1][0], 1.) # neuron 1 output
+        self.assertAlmostEqual(output[0], input_1) # the input
+        self.assertAlmostEqual(output[1][0], input_1) # neuron 1 output
         self.assertAlmostEqual(output[1][1], 0.) # neuron 2 output
+
+        input_2=2
+        output = net.network_step(2)
+        self.assertAlmostEqual(output[0], input_2) # the input
+        self.assertAlmostEqual(output[1][0], input_2) # neuron 1 output
+        self.assertAlmostEqual(output[1][1], input_1) # neuron 2 output
 
     def testDelayedIdentityNetwork(self):
         delays = [[0,0],[1,0]]
         net = Network(self.neurons, self.weights, delays=delays)
         
-        net.network_step(1)
-        output=net.network_step(2)
+        input_1=1
+        net.network_step(input_1)
+        input_2=2
+        output=net.network_step(input_2)
         
-        self.assertAlmostEqual(output[0], 2.) # the input
-        self.assertAlmostEqual(output[1][0], 2.) # neuron 1 output
-        print(output)
-        self.assertAlmostEqual(output[1][1], 1.) # neuron 2 output
+        self.assertAlmostEqual(output[0], input_2) # the input
+        self.assertAlmostEqual(output[1][0], input_2) # neuron 1 output
+        self.assertAlmostEqual(output[1][1], 0.0) # neuron 2 output
+
+        input_3=3
+        output=net.network_step(input_3)
+        self.assertAlmostEqual(output[0], input_3)
+        self.assertAlmostEqual(output[1][0], input_3)
+        self.assertAlmostEqual(output[1][1], input_1)
 
 if __name__ == "__main__":
     unittest.main()
