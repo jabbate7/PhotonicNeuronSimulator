@@ -4,6 +4,8 @@ import numpy as np
 import models
 import solvers
 from scipy import optimize
+import pdb
+
 class Neuron(object):
     """This is a Neuron object
     Initialize it as 
@@ -32,16 +34,17 @@ class Neuron(object):
 
         # set model ...
         self.set_model()
+        #pdb.set_trace()
+        self.set_history(params.get("hist_len", 10))
 
         # set initial state, default: all zeros
         self.set_initial_state(params.get("y0", np.zeros(self.dim)))
 
-        self.set_history(params.get("hist_len", 10))
-
         self.set_dt(params.get("dt", 1.0e-6))
         
         # read model specific parameters such as tau
-        self.set_model_params(params.get('mpar', {}))
+        if self.model != 'identity':
+            self.set_model_params(params.get('mpar', {}))
 
         # set solver ...
         if self.solver == 'Euler':
@@ -52,7 +55,7 @@ class Neuron(object):
             raise ValueError("Not implemented")
 
     def __repr__(self):
-        return "Neuron of type {0:s}".format(self.type)
+        return "Neuron of type {0:s}".format(self.model)
 
     #####  CONSTRUCTOR HELPER FUNCTIONS  #####
 
@@ -64,6 +67,8 @@ class Neuron(object):
 
     def set_history(self, hist_len):
         self.hist_len = hist_len
+        ### NOTE THIS COULD CAUSE PROBLEMS AS WE'RE WIPING THE HISTORY CLEAN
+        self.set_initial_state()
 
     def set_model(self):
         """
@@ -92,10 +97,13 @@ class Neuron(object):
         else:
             raise ValueError("Not implemented")
 
-    def set_initial_state(self, y0):
+    def set_initial_state(self, y0=None):
         """
         set initial conditions
         """
+        if y0 is None:
+            y0 = np.zeros(self.dim)
+
         self.hist = []
         self.y0 = y0
 
@@ -110,7 +118,8 @@ class Neuron(object):
                 has a {2:d}-dim phase space
                 """.format(len(self.y), self.model, self.dim))
 
-        self.hist.insert(0, self.y.copy())
+        for cnt in np.arange(self.hist_len):
+            self.hist.insert(0, self.y.copy())
 
     def set_model_params(self, mkwargs):
         """
