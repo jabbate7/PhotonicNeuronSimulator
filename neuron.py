@@ -162,15 +162,17 @@ class Neuron(object):
 
         return y_out
 
-    def steady_state(self):
+    def steady_state(self, yguess=None):
         """
         solve for the no-input steady state of the neuron
         """
+        if yguess is None:
+            yguess=self.y0
         ODEs=lambda y: self.f(0, y) #assume zero input
-        yguess=self.y0
         Root=optimize.fsolve(ODEs, yguess)
         #should probably write stuff here at one point so catches unphysical roots
         #also many of these systems have multistability so may not return the root we want
+        # solution for now is to just encourage user to choose yguess ``wisely''
         return Root
 
     def step_t_to_n(self):
