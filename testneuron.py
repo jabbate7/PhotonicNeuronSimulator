@@ -138,8 +138,6 @@ class TestNeuron(unittest.TestCase):
     def testYamadaPulsing(self):
         # test to verify Yamada pulses if given continuous input above threshold
         # also increase input and verify pulse period decreases
-
-
         Y1mpars={"a": 1.8, "A": 5.7, "B":-5., "gamma1": 1e-2,
          "gamma2": 1e-2, "kappa": 1, "beta": 1e-3 }
         y1_steady_est=[Y1mpars['beta']/Y1mpars['kappa'],
