@@ -40,7 +40,7 @@ class Neuron(object):
         # set initial state, default: all zeros
         self.set_initial_state(params.get("y0", np.zeros(self.dim)))
 
-        self.set_dt(params.get("dt", 1.0e-6))
+        self.set_dt(params.get("dt", 1.0e-4))
         
         # read model specific parameters such as tau
         if self.model != 'identity':
@@ -104,7 +104,7 @@ class Neuron(object):
         if y0 is None:
             y0 = np.zeros(self.dim)
 
-        self.hist = []
+        self.hist = [] #should this be a np.array?
         self.y0 = y0
 
         if np.isscalar(self.y0):
@@ -147,12 +147,13 @@ class Neuron(object):
     def step_RK4(self, x):
         """
         RK4 stepper insted of the Euler stepper above
+        [right now its still just Euler]
         """
         k1 = self.f(x, self.y)
         k2 = 0
         self.y = self.y + self.dt * self.f(x, self.y)
 
-        self.hist.insert(0, self.y.copy())
+        self.hist.insert(0, self.y.copy())#need to change so only save output variable
         # trim the history from the back if it grows too big
         if len(self.hist) > self.hist_len: 
             _ = self.hist.pop()
