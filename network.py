@@ -44,6 +44,9 @@ class Network:
         if (delays is not None):
             #delays is a list of times, need to convert to units of dt
             # divide by dt, so assumes its an np.array and not just a list
+            assert isinstance(delays, np.ndarray), "Delays must be np.ndarray"
+            msg="Delays must have shape ({}, {})".format(self.num_neurons, self.num_neurons)
+            assert (delays.shape==(self.num_neurons,self.num_neurons)), msg
             self.delays=(delays/self.dt).astype(int)
         else:
             self.delays = np.zeros((self.num_neurons,self.num_neurons),dtype=int)
@@ -71,7 +74,12 @@ class Network:
             else:
                 col = col - self.num_inputs
 #                import pdb; pdb.set_trace()
-                return self.neurons[col].hist[self.delays[row][col]] #assumes 1d hist
+                if (self.delays[row][col] >= len(self.neurons[col].hist)):
+                    #to save space, history starts almost empty and is populated untill full
+                    # assumption is that neuron was in initial state for all times before calculation
+                    return self.neurons[col].hist[-1] #return final element, which is initial state
+                else:
+                    return self.neurons[col].hist[self.delays[row][col]] #assumes 1d hist
         
         # an internal function to get the inputs needed to 
         # update neuron states 
@@ -93,24 +101,32 @@ class Network:
         assert (len(external_inputs)==int(self.num_inputs)), msg
         # update the state of each neuron 
         neuron_inputs = self.generate_neuron_inputs(external_inputs)
-        #neuron_outputs = np.zeros(self.num_neurons)
+        neuron_outputs = np.zeros(self.num_neurons)
         for i,neuron in enumerate(self.neurons):
-            neuron.step(neuron_inputs[i]) #State is stored internally in each neuron so dont need to store
-        #    neuron_outputs[i]=neuron.step(neuron_inputs[i])
-        #return (external_inputs, neuron_outputs)
+            neuron.step(neuron_inputs[i]) 
+            neuron_outputs[i]=neuron.hist[0] #ensures get scalar result
+            #hist[0] is current state of output variable of a given neuron
+        return neuron_outputs
 
     def __repr__(self):
         return '{}-input, {}-neuron network'.format(self.num_inputs, self.num_neurons)
 
-    def return_states(self):
+    def return_states(self, dims=None):
         """
-         Return the state of the network (by querying each neuron
-         Optional flag to return just output state or internal state of neuron as well?
+         Return the state of the network (by querying each neuron)
+         If want the state of all of neurons internal variables,
+         include argument dims=dimension of neuron phase space
          """
-        states = np.zeros(self.num_neurons)
-        for i,neuron in enumerate(self.neurons):
-            states[i]=neuron.y #will only return something useful for 1d neurons currently
-        return states
+        if dims is None: 
+            states = np.zeros(self.num_neurons)
+            for i,neuron in enumerate(self.neurons):
+                states[i]=neuron.hist[0]
+            return states
+        else:
+            states.np.zeros([self.num_neurons, dims])
+            for i,neuron in enumerate(self.neurons):
+                states[i, :]=neuron.y
+            return states            
     
     def network_solve(self,external_inputs):
         """
@@ -120,11 +136,12 @@ class Network:
         """
         #skeleton version for now
         Len_t=external_inputs.shape[0]#first dimension is time
+        msg="External input matrix needs shape ({}, {})".format(Len_t, self.num_inputs)
+        assert (external_inputs.shape[1]==int(self.num_inputs)), msg
         Net=np.zeros(Len_t, self.num_neurons)
         Net[0, :]=self.return_states()
         for i in range(Len_t-1):
-            self.network_step(external_inputs[i, :].squeeze()) #step network forward
-            Net[i, :]=self.return_states()
+            Net[i, :]=self.network_step(external_inputs[i, :].squeeze()) #step network forward
         return Net
 
 
