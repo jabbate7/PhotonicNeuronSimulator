@@ -144,7 +144,26 @@ class Network:
             Net[i, :]=self.network_step(external_inputs[i, :].squeeze()) #step network forward
         return Net
 
+    def network_solve_full(self,external_inputs):
+        """
+        Solve the network given an array of time dependent external inputs,
+        and returns the entire dynamical phase space of each neuron, rather than just the state variable
+        External inputs is a num_timesteps X num_inputs array
+        outputs a  num_timesteps X num_neuron X neuron.dim array which is the network state at each timestep
+        """
+        #skeleton version for now
+        Len_t=external_inputs.shape[0]#first dimension is time
+        msg="External input matrix needs shape ({}, {})".format(Len_t, self.num_inputs)
+        assert (external_inputs.shape[1]==int(self.num_inputs)), msg
+        dim=self.neurons[0].dim
+        #maybe assert all neurons have this many dims
+        Net=np.zeros(Len_t, self.num_neurons, dim)
+        Net[0, :, :]=self.return_states(dim)
+        for i in range(Len_t-1):
+            self.network_step(external_inputs[i, :].squeeze()) #step network forward
+            Net[i, :, :]=self.return_states(dim)
 
+        return Net
 
     def visualize(self):
         # visualize the network
