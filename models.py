@@ -4,7 +4,7 @@
 # all these functions must have a signature
 # def fun(x, y, **kwargs)
 # and must return an array of the same dimension as y
-
+# The first element of y should always be the output/Neuron state variable
 import numpy as np
 
 def Yamada_0(x, y, P=0.8, gamma=1.e-2, kappa=1, beta=1e-3):

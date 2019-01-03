@@ -35,10 +35,12 @@ class Neuron(object):
         # set model ...
         self.set_model()
         #pdb.set_trace()
-        self.set_history(params.get("hist_len", 10))
 
         # set initial state, default: all zeros
         self.set_initial_state(params.get("y0", np.zeros(self.dim)))
+        # set history, do it after creating y0 and model
+        self.set_history(params.get("hist_len", 10))
+
 
         self.set_dt(params.get("dt", 1.0e-4))
         
@@ -60,19 +62,17 @@ class Neuron(object):
     #####  CONSTRUCTOR HELPER FUNCTIONS  #####
 
     def set_dt(self, dt):
+        """ 
+        Set timestep for Neuron
+        """
         self.dt = dt
         # for the identity, the step parameter h should be the same as dt
         if self.model == "identity":
             self.set_model_params({'h': self.dt})
 
-    def set_history(self, hist_len):
-        self.hist_len = hist_len
-        ### NOTE THIS COULD CAUSE PROBLEMS AS WE'RE WIPING THE HISTORY CLEAN
-        self.set_initial_state()
-
     def set_model(self):
         """
-        constructor helper function
+        constructor helper function, sets Neuron model and model's key properties
         """
         if self.model == 'identity':
             self.dim = 1
@@ -104,13 +104,16 @@ class Neuron(object):
         if y0 is None:
             y0 = np.zeros(self.dim)
 
-        self.hist = [] #should this be a np.array?
         self.y0 = y0
 
         if np.isscalar(self.y0):
             self.y = np.array([self.y0])
+            #wipe history as well, replace with initial state
+            self.hist = [self.y0] 
         else:
             self.y = self.y0.copy() 
+            #same thing, but history must be list of scalars
+            self.hist=[self.y0[0]]
 
         if len(self.y) != self.dim:
             raise ValueError(
@@ -118,9 +121,20 @@ class Neuron(object):
                 has a {2:d}-dim phase space
                 """.format(len(self.y), self.model, self.dim))
 
-        for cnt in np.arange(self.hist_len):
-            self.hist.insert(0, self.y.copy())
+        # for cnt in np.arange(self.hist_len):
+        #     self.hist.insert(0, self.y.copy())
 
+    def set_history(self, hist_len):
+        """
+        Constructs empty history list of length hist_len,
+        to be populated with previous neuron states.
+        For multidemensional Neurons, history only stores output/state variable.
+        """
+        self.hist_len = hist_len
+        if np.isscalar(self.y0):
+            self.hist = [self.y0] 
+        else:
+            self.hist = [self.y0[0]]
     def set_model_params(self, mkwargs):
         """
         set parameter-agnostic stepping function 
@@ -136,8 +150,11 @@ class Neuron(object):
             y_{n+1} = y_n + h f(x_n, y_n)
         """
         self.y = self.y + self.dt * self.f(x, self.y)
+        if self.dim>1:
+            self.hist.insert(0,self.y[0] )#first element is "state" variable 
+        else:
+            self.hist.insert(0,self.y)
 
-        self.hist.insert(0,self.y.copy())
         # trim the history from the back if it grows too big
         if len(self.hist) > self.hist_len: 
             _ = self.hist.pop()
@@ -153,7 +170,12 @@ class Neuron(object):
         k2 = 0
         self.y = self.y + self.dt * self.f(x, self.y)
 
-        self.hist.insert(0, self.y.copy())#need to change so only save output variable
+        if self.dim>1:
+            self.hist.insert(0,self.y[0].copy()) #first element is "state" variable 
+            #also dont think i need .copy() anymore
+        else:
+            self.hist.insert(0,self.y)
+
         # trim the history from the back if it grows too big
         if len(self.hist) > self.hist_len: 
             _ = self.hist.pop()
@@ -162,8 +184,8 @@ class Neuron(object):
 
 
     def solve(self, x):
-        """ get the entire output time series of a neuron with input
-        time series x
+        """ 
+        Calculate the entire dynamics of the neuron with input x(t).
         """
         y_out = np.zeros((len(x), self.dim))
         y_out[0,:] = self.y # initial state
@@ -174,15 +196,15 @@ class Neuron(object):
 
     def steady_state(self, yguess=None):
         """
-        solve for the no-input steady state of the neuron
+        solve for the no-input steady state of the neuron.
+        Choose yguess "wisely" to avoid unphysical roots.
+        Recommended to test steady state by ruling solve(np.zeros(N))
+        and seeing if state stays stationary.
         """
         if yguess is None:
             yguess=self.y0
-        ODEs=lambda y: self.f(0, y) #assume zero input
+        ODEs=lambda y: self.f(0, y)
         Root=optimize.fsolve(ODEs, yguess)
-        #should probably write stuff here at one point so catches unphysical roots
-        #also many of these systems have multistability so may not return the root we want
-        # solution for now is to just encourage user to choose yguess ``wisely''
         return Root
 
     def step_t_to_n(self):
