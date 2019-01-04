@@ -38,7 +38,7 @@ class Neuron(object):
         self.set_history(params.get("hist_len", 10))
 
         # set initial state, default: all zeros
-        self.set_initial_state(params.get("y0", np.zeros(self.dim)))
+        self.set_initial_state(np.array(params.get("y0", np.zeros(self.dim))))
 
         self.set_dt(params.get("dt", 1.0e-6))
         
@@ -149,7 +149,10 @@ class Neuron(object):
         RK4 stepper insted of the Euler stepper above
         """
         k1 = self.f(x, self.y)
-        k2 = 0
+        k2 = self.(x + , self.y + 0.5*self.dt*k1)
+        k3 = self.(x + , self.y + 0.5*self.dt*k1)
+        k4 = self.(x + , self.y + 0.5*self.dt*k1)
+
         self.y = self.y + self.dt * self.f(x, self.y)
 
         self.hist.insert(0, self.y.copy())
