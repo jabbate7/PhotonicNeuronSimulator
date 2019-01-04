@@ -38,7 +38,7 @@
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">optimize</span>
 <span class="kn">import</span> <span class="nn">pdb</span>
 
-<div class="viewcode-block" id="Neuron"><a class="viewcode-back" href="../index.html#neuron.Neuron">[docs]</a><span class="k">class</span> <span class="nc">Neuron</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Neuron"><a class="viewcode-back" href="../network.html#neuron.Neuron">[docs]</a><span class="k">class</span> <span class="nc">Neuron</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;This is a Neuron object</span>
 <span class="sd">    Initialize it as </span>
 <span class="sd">    myneuron = Neuron() # default, or</span>
@@ -93,7 +93,7 @@
 
     <span class="c1">#####  CONSTRUCTOR HELPER FUNCTIONS  #####</span>
 
-<div class="viewcode-block" id="Neuron.set_dt"><a class="viewcode-back" href="../index.html#neuron.Neuron.set_dt">[docs]</a>    <span class="k">def</span> <span class="nf">set_dt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+<div class="viewcode-block" id="Neuron.set_dt"><a class="viewcode-back" href="../network.html#neuron.Neuron.set_dt">[docs]</a>    <span class="k">def</span> <span class="nf">set_dt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">        Set timestep for Neuron</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -102,7 +102,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s2">&quot;identity&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_model_params</span><span class="p">({</span><span class="s1">&#39;h&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">})</span></div>
 
-<div class="viewcode-block" id="Neuron.set_model"><a class="viewcode-back" href="../index.html#neuron.Neuron.set_model">[docs]</a>    <span class="k">def</span> <span class="nf">set_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Neuron.set_model"><a class="viewcode-back" href="../network.html#neuron.Neuron.set_model">[docs]</a>    <span class="k">def</span> <span class="nf">set_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        constructor helper function, sets Neuron model and model&#39;s key properties</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -129,7 +129,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not implemented&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Neuron.set_initial_state"><a class="viewcode-back" href="../index.html#neuron.Neuron.set_initial_state">[docs]</a>    <span class="k">def</span> <span class="nf">set_initial_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y0</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Neuron.set_initial_state"><a class="viewcode-back" href="../network.html#neuron.Neuron.set_initial_state">[docs]</a>    <span class="k">def</span> <span class="nf">set_initial_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y0</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        set initial conditions</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -156,7 +156,7 @@
         <span class="c1"># for cnt in np.arange(self.hist_len):</span>
         <span class="c1">#     self.hist.insert(0, self.y.copy())</span>
 
-<div class="viewcode-block" id="Neuron.set_history"><a class="viewcode-back" href="../index.html#neuron.Neuron.set_history">[docs]</a>    <span class="k">def</span> <span class="nf">set_history</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hist_len</span><span class="p">):</span>
+<div class="viewcode-block" id="Neuron.set_history"><a class="viewcode-back" href="../network.html#neuron.Neuron.set_history">[docs]</a>    <span class="k">def</span> <span class="nf">set_history</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hist_len</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructs empty history list of length hist_len,</span>
 <span class="sd">        to be populated with previous neuron states.</span>
@@ -167,7 +167,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">hist</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">y0</span><span class="p">]</span> 
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">hist</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">y0</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span></div>
-<div class="viewcode-block" id="Neuron.set_model_params"><a class="viewcode-back" href="../index.html#neuron.Neuron.set_model_params">[docs]</a>    <span class="k">def</span> <span class="nf">set_model_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mkwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Neuron.set_model_params"><a class="viewcode-back" href="../network.html#neuron.Neuron.set_model_params">[docs]</a>    <span class="k">def</span> <span class="nf">set_model_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mkwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        set parameter-agnostic stepping function </span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -176,7 +176,7 @@
 
     <span class="c1">#### STEPPER FUNCTIONS (THE HEART OF THE ODE SOLVER) ####</span>
 
-<div class="viewcode-block" id="Neuron.step_Euler"><a class="viewcode-back" href="../index.html#neuron.Neuron.step_Euler">[docs]</a>    <span class="k">def</span> <span class="nf">step_Euler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<div class="viewcode-block" id="Neuron.step_Euler"><a class="viewcode-back" href="../network.html#neuron.Neuron.step_Euler">[docs]</a>    <span class="k">def</span> <span class="nf">step_Euler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; get the output at the next time step, given an input x</span>
 <span class="sd">            update history ...</span>
 <span class="sd">            y_{n+1} = y_n + h f(x_n, y_n)</span>
@@ -193,7 +193,7 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="c1"># return output y (t+dt)</span></div>
 
-<div class="viewcode-block" id="Neuron.step_RK4"><a class="viewcode-back" href="../index.html#neuron.Neuron.step_RK4">[docs]</a>    <span class="k">def</span> <span class="nf">step_RK4</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<div class="viewcode-block" id="Neuron.step_RK4"><a class="viewcode-back" href="../network.html#neuron.Neuron.step_RK4">[docs]</a>    <span class="k">def</span> <span class="nf">step_RK4</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        RK4 stepper insted of the Euler stepper above</span>
 <span class="sd">        [right now its still just Euler]</span>
@@ -215,7 +215,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="c1"># return output y (t+dt)</span></div>
 
 
-<div class="viewcode-block" id="Neuron.solve"><a class="viewcode-back" href="../index.html#neuron.Neuron.solve">[docs]</a>    <span class="k">def</span> <span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<div class="viewcode-block" id="Neuron.solve"><a class="viewcode-back" href="../network.html#neuron.Neuron.solve">[docs]</a>    <span class="k">def</span> <span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">        Calculate the entire dynamics of the neuron with input x(t).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -226,7 +226,7 @@
 
         <span class="k">return</span> <span class="n">y_out</span></div>
 
-<div class="viewcode-block" id="Neuron.steady_state"><a class="viewcode-back" href="../index.html#neuron.Neuron.steady_state">[docs]</a>    <span class="k">def</span> <span class="nf">steady_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">yguess</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Neuron.steady_state"><a class="viewcode-back" href="../network.html#neuron.Neuron.steady_state">[docs]</a>    <span class="k">def</span> <span class="nf">steady_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">yguess</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        solve for the no-input steady state of the neuron.</span>
 <span class="sd">        Choose yguess &quot;wisely&quot; to avoid unphysical roots.</span>
@@ -239,7 +239,7 @@
         <span class="n">Root</span><span class="o">=</span><span class="n">optimize</span><span class="o">.</span><span class="n">fsolve</span><span class="p">(</span><span class="n">ODEs</span><span class="p">,</span> <span class="n">yguess</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Root</span></div>
 
-<div class="viewcode-block" id="Neuron.step_t_to_n"><a class="viewcode-back" href="../index.html#neuron.Neuron.step_t_to_n">[docs]</a>    <span class="k">def</span> <span class="nf">step_t_to_n</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Neuron.step_t_to_n"><a class="viewcode-back" href="../network.html#neuron.Neuron.step_t_to_n">[docs]</a>    <span class="k">def</span> <span class="nf">step_t_to_n</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        convert time to discrete units by dividing a time interval by the </span>
 <span class="sd">        size of a time step</span>
@@ -262,9 +262,10 @@
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
+<p class="caption"><span class="caption-text">Classes:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../neuron.html">Neuron</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../network.html">Network</a></li>
 </ul>
 
 <div class="relations">

@@ -1,12 +1,8 @@
------------
 Usage
 -----------
 
 Network
 =========
-A Network is a specific topology of connected Neuron objects. Connections between neurons can be weighted, and also can carry a time delay. There can be multiple input sources, which can be connected to any neurons. These connections also have associated weights and time delays. 
-
-Once initialized, a Network's primary method is to take in a set of signals at a given timestep and reveal the updated neuron states. 
 
 Defining connections
 ----------------------
@@ -38,8 +34,3 @@ The time delay matrix is simpler. In a similar way, the element of T in row i an
    :align: center
 
    Time delay matrix format
-
-Neuron
-=======
-.. autoclass:: Neuron
-   :members:
