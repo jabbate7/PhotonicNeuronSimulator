@@ -93,8 +93,9 @@ class Network:
     def network_step(self,external_inputs):
         """
         Steps the network forward in time by dt.
-        Needs the set of current external inputs
+        external_inputs is input array at the current time (num_inputs X 1)
         Each Neuron updates based on its state and its input
+        Returns array of each neuron's output variable (num_neurons X 1)
         """
         external_inputs = np.atleast_1d(external_inputs)
         msg="Please specify {} inputs in an array".format(self.num_inputs)
@@ -133,6 +134,7 @@ class Network:
         Solve the network given an array of time dependent external inputs
         External inputs is a num_timesteps X num_inputs array
         outputs a  num_timesteps X num_neuron array which is the network state at each timestep
+
         """
         #skeleton version for now
         Len_t=external_inputs.shape[0]#first dimension is time
@@ -143,6 +145,26 @@ class Network:
         for i in range(Len_t-1):
             Net[i, :]=self.network_step(external_inputs[i, :].squeeze()) #step network forward
         return Net
+
+    def network_step_full(self,external_inputs, dims=1):
+        """
+        Steps the network forward in time by dt, with option to return full neuron state.
+        Use with network_solve_full or to see full phase space of each neuron as evolve
+        external_inputs is input array at the current time (num_inputs X 1)
+        Each Neuron updates based on its state and its input
+        Returns array of each neuron's output variable (num_neurons X 1)
+        To return state of all of neurons internal variables (num_neurons X neuron.dim)
+        include argument dims=dimension of neuron phase space
+        """
+        external_inputs = np.atleast_1d(external_inputs)
+        msg="Please specify {} inputs in an array".format(self.num_inputs)
+        assert (len(external_inputs)==int(self.num_inputs)), msg
+        # update the state of each neuron 
+        neuron_inputs = self.generate_neuron_inputs(external_inputs)
+        neuron_outputs = np.zeros([self.num_neurons, dim])
+        for i,neuron in enumerate(self.neurons):
+           neuron_outputs[i, :] = neuron.step(neuron_inputs[i]) 
+        return neuron_outputs    
 
     def network_solve_full(self,external_inputs):
         """
@@ -160,9 +182,7 @@ class Network:
         Net=np.zeros(Len_t, self.num_neurons, dim)
         Net[0, :, :]=self.return_states(dim)
         for i in range(Len_t-1):
-            self.network_step(external_inputs[i, :].squeeze()) #step network forward
-            Net[i, :, :]=self.return_states(dim)
-
+            Net[i, :, :]=self.network_step(external_inputs[i, :].squeeze()) #step network forward
         return Net
 
     def visualize(self):
