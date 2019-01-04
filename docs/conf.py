@@ -12,16 +12,16 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+sys.path.insert(0, os.path.abspath('..'))
 
 
 # -- Project information -----------------------------------------------------
 
 project = 'Photonic Neuron Simulator'
-copyright = '2018, Akshay Krishna, Gerry Angelatos, Joe Abbate'
-author = 'Akshay Krishna, Gerry Angelatos, Joe Abbate'
+copyright = '2018, Joe Abbate, Gerry Angelatos, Akshay Krishna'
+author = 'Joe Abbate, Gerry Angelatos, Akshay Krishna'
 
 # The short X.Y version
 version = ''
@@ -44,6 +44,7 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
+    'sphinx.ext.napoleon'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -134,7 +135,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'PhotonicNeuronSimulator.tex', 'Photonic Neuron Simulator Documentation',
-     'Akshay Krishna, Gerry Angelatos, Joe Abbate', 'manual'),
+     'Joe Abbate, Gerry Angelatos, Akshay Krishna', 'manual'),
 ]
 
 

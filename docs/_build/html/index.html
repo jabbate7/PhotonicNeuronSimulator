@@ -15,6 +15,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Usage" href="usage.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -29,9 +30,98 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="welcome-to-photonic-neuron-simulator-s-documentation">
-<h1>Welcome to Photonic Neuron Simulator’s documentation!<a class="headerlink" href="#welcome-to-photonic-neuron-simulator-s-documentation" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-neuron">
+<span id="welcome-to-photonic-neuron-simulator-s-documentation"></span><h1>Welcome to Photonic Neuron Simulator’s documentation!<a class="headerlink" href="#module-neuron" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="neuron.Neuron">
+<em class="property">class </em><code class="descclassname">neuron.</code><code class="descname">Neuron</code><span class="sig-paren">(</span><em>params={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/neuron.html#Neuron"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neuron.Neuron" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is a Neuron object
+Initialize it as
+myneuron = Neuron() # default, or
+myneuron = Neuron(params)
+where params is a dict with parameter values, for example
+params = {‘model’: “FitzHughNagumo”, ‘y0’: [0.0, 0.0]}
+params = {‘model’: “Yamada0”, ‘mpar’: {‘P’: 0.8, ‘gamma’: 1.e-2, ‘kappa’: 1, ‘beta’: 1e-3} }</p>
+<dl class="method">
+<dt id="neuron.Neuron.set_dt">
+<code class="descname">set_dt</code><span class="sig-paren">(</span><em>dt</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/neuron.html#Neuron.set_dt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neuron.Neuron.set_dt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set timestep for Neuron</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="neuron.Neuron.set_history">
+<code class="descname">set_history</code><span class="sig-paren">(</span><em>hist_len</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/neuron.html#Neuron.set_history"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neuron.Neuron.set_history" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs empty history list of length hist_len,
+to be populated with previous neuron states.
+For multidemensional Neurons, history only stores output/state variable.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="neuron.Neuron.set_initial_state">
+<code class="descname">set_initial_state</code><span class="sig-paren">(</span><em>y0=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/neuron.html#Neuron.set_initial_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neuron.Neuron.set_initial_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>set initial conditions</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="neuron.Neuron.set_model">
+<code class="descname">set_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/neuron.html#Neuron.set_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neuron.Neuron.set_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>constructor helper function, sets Neuron model and model’s key properties</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="neuron.Neuron.set_model_params">
+<code class="descname">set_model_params</code><span class="sig-paren">(</span><em>mkwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/neuron.html#Neuron.set_model_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neuron.Neuron.set_model_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>set parameter-agnostic stepping function</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="neuron.Neuron.solve">
+<code class="descname">solve</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/neuron.html#Neuron.solve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neuron.Neuron.solve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the entire dynamics of the neuron with input x(t).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="neuron.Neuron.steady_state">
+<code class="descname">steady_state</code><span class="sig-paren">(</span><em>yguess=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/neuron.html#Neuron.steady_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neuron.Neuron.steady_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>solve for the no-input steady state of the neuron.
+Choose yguess “wisely” to avoid unphysical roots.
+Recommended to test steady state by ruling solve(np.zeros(N))
+and seeing if state stays stationary.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="neuron.Neuron.step_Euler">
+<code class="descname">step_Euler</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/neuron.html#Neuron.step_Euler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neuron.Neuron.step_Euler" title="Permalink to this definition">¶</a></dt>
+<dd><p>get the output at the next time step, given an input x
+update history …
+y_{n+1} = y_n + h f(x_n, y_n)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="neuron.Neuron.step_RK4">
+<code class="descname">step_RK4</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/neuron.html#Neuron.step_RK4"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neuron.Neuron.step_RK4" title="Permalink to this definition">¶</a></dt>
+<dd><p>RK4 stepper insted of the Euler stepper above
+[right now its still just Euler]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="neuron.Neuron.step_t_to_n">
+<code class="descname">step_t_to_n</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/neuron.html#Neuron.step_t_to_n"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neuron.Neuron.step_t_to_n" title="Permalink to this definition">¶</a></dt>
+<dd><p>convert time to discrete units by dividing a time interval by the
+size of a time step</p>
+</dd></dl>
+
+</dd></dl>
+
 <div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#network">Network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#neuron">Neuron</a></li>
+</ul>
+</li>
+</ul>
 </div>
 </div>
 <div class="section" id="indices-and-tables">
@@ -59,11 +149,16 @@
 
 
 <h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+</ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="usage.html" title="next chapter">Usage</a></li>
   </ul></li>
 </ul>
 </div>
@@ -84,7 +179,7 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2018, Akshay Krishna, Gerry Angelatos, Joe Abbate.
+      &copy;2018, Joe Abbate, Gerry Angelatos, Akshay Krishna.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.2</a>
