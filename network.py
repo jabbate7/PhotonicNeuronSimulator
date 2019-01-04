@@ -146,7 +146,7 @@ class Network:
             Net[i, :]=self.network_step(external_inputs[i, :].squeeze()) #step network forward
         return Net
 
-    def network_step_full(self,external_inputs, dims=1):
+    def network_step_full(self,external_inputs, dim=1):
         """
         Steps the network forward in time by dt, with option to return full neuron state.
         Use with network_solve_full or to see full phase space of each neuron as evolve
@@ -182,7 +182,7 @@ class Network:
         Net=np.zeros(Len_t, self.num_neurons, dim)
         Net[0, :, :]=self.return_states(dim)
         for i in range(Len_t-1):
-            Net[i, :, :]=self.network_step(external_inputs[i, :].squeeze()) #step network forward
+            Net[i, :, :]=self.network_step_full(external_inputs[i, :].squeeze(), dim) #step network forward
         return Net
 
     def visualize(self):
