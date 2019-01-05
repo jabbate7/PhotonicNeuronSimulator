@@ -34,20 +34,6 @@
 <span></span><span class="kn">from</span> <span class="nn">neuron</span> <span class="k">import</span> <span class="n">Neuron</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="c1">#Gerrythoughts</span>
-<span class="c1"># delays should be in units of time, not in units of dt, since should be able to change dt without changing topography of netowrk itself</span>
-<span class="c1">#also might use solver with variable timestep for next iteration</span>
-
-<span class="c1">#history is a list, should it be a np.array?</span>
-
-<span class="c1">#lots of for loops</span>
-
-<span class="c1">#network only works with 1 dimensional neurons</span>
-<span class="c1">#one variable is always output, but the non-identity neurons have dimension&gt;=2</span>
-<span class="c1"># I dont know whether we need to keep track of these in the history vector, probably not</span>
-<span class="c1">#possible solution is to always have first element of y be the state variable, and store that in ``history&#39;&#39;</span>
-<span class="c1"># also will assume thats the only thing we ever care about then, and can forget about other variables</span>
-
 
 
 <span class="c1"># A network is a specific topology of Neurons</span>
@@ -118,6 +104,8 @@
 <span class="sd">            A 1D array with the external inputs (i.e. non-neuron inputs).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">def</span> <span class="nf">get_prev_output</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">):</span>
+            <span class="c1"># an internal function to get the inputs needed to </span>
+            <span class="c1"># update neuron states </span>
             <span class="k">if</span> <span class="n">col</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_inputs</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">external_inputs</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
@@ -128,16 +116,21 @@
                     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">neurons</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c1">#return final element, which is initial state</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">neurons</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">delays</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span><span class="p">]]</span> <span class="c1">#assumes 1d hist</span>
-        
-        <span class="c1"># an internal function to get the inputs needed to </span>
-        <span class="c1"># update neuron states </span>
+        <span class="c1"># did some baby profiling and this bit is actually slower, what the fuck, why?</span>
+        <span class="c1"># if np.amax(self.delays)==0: #no delays,use matrix multiplication</span>
+        <span class="c1">#     inputs_raw=external_inputs</span>
+        <span class="c1">#     for i,neuron in enumerate(self.neurons):</span>
+        <span class="c1">#         inputs_raw=np.append(inputs_raw, neuron.hist[0])</span>
+        <span class="c1">#     inputs=np.dot(self.weights, inputs_raw)</span>
+        <span class="c1"># else: </span>
         <span class="n">inputs</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_neurons</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_neurons</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_neurons</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">num_inputs</span><span class="p">):</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">inputs</span><span class="p">[</span><span class="n">row</span><span class="p">]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span><span class="p">]</span><span class="o">*</span><span class="n">get_prev_output</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="n">col</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">inputs</span></div>
-                
+
+
 <div class="viewcode-block" id="Network.network_step"><a class="viewcode-back" href="../network.html#network.Network.network_step">[docs]</a>    <span class="k">def</span> <span class="nf">network_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">external_inputs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Steps the network forward in time by dt.</span>
@@ -201,16 +194,56 @@
 <span class="sd">        external_inputs</span>
 <span class="sd">            A 1D array with the external inputs (i.e. non-neuron inputs).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1">#skeleton version for now</span>
-        <span class="n">Len_t</span><span class="o">=</span><span class="n">external_inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="c1">#first dimension is time</span>
+        <span class="n">external_inputs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">external_inputs</span><span class="p">)</span> <span class="c1">#asserts 2d array </span>
+        <span class="c1">#above converts 1d array (ie 1 input) to shape (1, Len_t), so catch and transpose</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">external_inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">):</span> <span class="c1">#dont use solve with single timestep anyways</span>
+            <span class="n">external_inputs</span><span class="o">=</span><span class="n">external_inputs</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span> <span class="c1">#flip so now has shape (Len_t, 1)</span>
+        <span class="n">Len_t</span><span class="o">=</span><span class="n">external_inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="c1">#first dimension is time, this is num_timesteps</span>
         <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;External input matrix needs shape (</span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">Len_t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_inputs</span><span class="p">)</span>
         <span class="k">assert</span> <span class="p">(</span><span class="n">external_inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_inputs</span><span class="p">)),</span> <span class="n">msg</span>
-        <span class="n">Net</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Len_t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_neurons</span><span class="p">)</span>
-        <span class="n">Net</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">return_states</span><span class="p">()</span>
+        <span class="n">network_outputs</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">Len_t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_neurons</span><span class="p">])</span>
+        <span class="n">network_outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">return_states</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Len_t</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
-            <span class="n">Net</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">network_step</span><span class="p">(</span><span class="n">external_inputs</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">())</span> <span class="c1">#step network forward</span>
-        <span class="k">return</span> <span class="n">Net</span></div>
+            <span class="n">network_outputs</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">network_step</span><span class="p">(</span><span class="n">external_inputs</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">())</span> <span class="c1">#step network forward</span>
+        <span class="k">return</span> <span class="n">network_outputs</span></div>
 
+<div class="viewcode-block" id="Network.network_inputs"><a class="viewcode-back" href="../network.html#network.Network.network_inputs">[docs]</a>    <span class="k">def</span> <span class="nf">network_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">network_outputs</span><span class="p">,</span> <span class="n">external_inputs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the integrated input to each Neuron as a (num_timesteps X num_neuron) array</span>
+<span class="sd">        attributes are network_outputs, the (num_timesteps X num_neuron) array containing each neurons state,</span>
+<span class="sd">        as comupted from network_solve, and external_inputs the (num_timesteps X num_inputs) array of external inputs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">get_prev_outputv2</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">):</span>
+            <span class="c1"># an internal function to get the inputs needed to </span>
+            <span class="c1"># update neuron states </span>
+            <span class="k">if</span> <span class="n">col</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_inputs</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">external_inputs</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">col</span> <span class="o">=</span> <span class="n">col</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_inputs</span>
+<span class="c1">#                import pdb; pdb.set_trace()</span>
+                <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delays</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span><span class="p">]</span> <span class="p">)</span><span class="o">&gt;=</span> <span class="n">t</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">network_outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="n">col</span><span class="p">]</span> 
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">network_outputs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">delays</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span><span class="p">],</span> <span class="n">col</span><span class="p">]</span>
+
+        <span class="n">external_inputs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">external_inputs</span><span class="p">)</span> <span class="c1">#asserts 2d array </span>
+        <span class="c1">#above converts 1d array (ie 1 input) to shape (1, Len_t), so catch and transpose</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">external_inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">):</span> <span class="c1">#dont use solve with single timestep anyways</span>
+            <span class="n">external_inputs</span><span class="o">=</span><span class="n">external_inputs</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span> <span class="c1">#flip so now has shape (Len_t, 1)</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delays</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span> <span class="c1">#no delays, so this is easy</span>
+            <span class="n">Inputs_raw</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">external_inputs</span><span class="p">,</span> <span class="n">network_outputs</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+            <span class="n">Inputs</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">,</span> <span class="n">Inputs_raw</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">Len_t</span><span class="o">=</span><span class="n">network_outputs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">Inputs</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">Len_t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_neurons</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Len_t</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_neurons</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_neurons</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">num_inputs</span><span class="p">):</span>
+                        <span class="n">Inputs</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="n">row</span><span class="p">]</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">row</span><span class="p">,</span><span class="n">col</span><span class="p">]</span><span class="o">*</span><span class="n">get_prev_outputv2</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="n">col</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Inputs</span></div>
 <div class="viewcode-block" id="Network.network_step_full"><a class="viewcode-back" href="../network.html#network.Network.network_step_full">[docs]</a>    <span class="k">def</span> <span class="nf">network_step_full</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">external_inputs</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Steps the network forward in time by dt, with option to return full neuron state.</span>

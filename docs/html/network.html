@@ -77,6 +77,14 @@ Then add appropriatly delayed weighted outputs from other neurons.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="network.Network.network_inputs">
+<code class="descname">network_inputs</code><span class="sig-paren">(</span><em>network_outputs</em>, <em>external_inputs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/network.html#Network.network_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#network.Network.network_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the integrated input to each Neuron as a (num_timesteps X num_neuron) array
+attributes are network_outputs, the (num_timesteps X num_neuron) array containing each neurons state,
+as comupted from network_solve, and external_inputs the (num_timesteps X num_inputs) array of external inputs</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="network.Network.network_solve">
 <code class="descname">network_solve</code><span class="sig-paren">(</span><em>external_inputs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/network.html#Network.network_solve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#network.Network.network_solve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the network given an array of time dependent external inputs
