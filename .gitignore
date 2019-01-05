@@ -4,4 +4,5 @@
 *.ppt
 .DS_Store
 *.pyc
+_build
 .ipynb_checkpoints

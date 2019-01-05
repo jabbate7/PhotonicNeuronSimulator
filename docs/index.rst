@@ -6,14 +6,12 @@
 Welcome to Photonic Neuron Simulator's documentation!
 =====================================================
 
-.. automodule:: neuron
-   :members:
-
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
-   
+
+   classes
    usage
+   theory
 
 
 Indices and tables

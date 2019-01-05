@@ -2,7 +2,6 @@
 
 import numpy as np
 import models
-import solvers
 from scipy import optimize
 import pdb
 
