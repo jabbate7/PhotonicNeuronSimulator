@@ -10,3 +10,7 @@ Documentation
 You will find complete documentation for setting up your project at `the Read the Docs site`_.
 
 .. _the Read the Docs site: https://photonicneuronsimulator.readthedocs.io/
+
+Authors
+--------
+This was a project for Princeton's APC 524 class, authored by Joe Abbate, Gerry Angelatos, and Akshay Krishna 
