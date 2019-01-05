@@ -7,7 +7,7 @@ This project allows researchers to easily model and visualize arbitrary networks
 
 Documentation
 --------------
-You will find complete documentation for setting up your project at `the Read the Docs site`_.
+You will find complete documentation at `the Read the Docs site`_.
 
 .. _the Read the Docs site: https://photonicneuronsimulator.readthedocs.io/
 
