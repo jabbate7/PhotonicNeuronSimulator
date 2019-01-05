@@ -1,0 +1,135 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Background &#8212; Photonic Neuron Simulator 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Usage" href="usage.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="background">
+<h1>Background<a class="headerlink" href="#background" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="problem-description">
+<h2>Problem Description<a class="headerlink" href="#problem-description" title="Permalink to this headline">¶</a></h2>
+<p>Neuromorphic or cognitive computing is a rapidly growing frontier of research which seeks to develop new computational processors inspired by the architecture of the brain.  In such systems, the fundamental processing unit is a “neuron”, which responds to inputs above threshold with a large amplitude pulse (a spike) before refracting to its rest state.  As with their biological counterpart, collections of these neurons are connected to form a network:  the state of a given neuron is relayed to its neighbours via a “synapse” which applies a configurable weight and delay to its output signal. These weighted and delayed outputs are summed at a given neuron to forms its input, which governs its spiking behaviour.</p>
+<p>In this project we will design a modular spiking neural network simulator.  For an arbitrary fundamental neuron model and network topology (number of neurons, synaptic weights and delays) we plan on computing its dynamics and visualizing each neuron’s state.</p>
+<p>A variety of different technologies have been explored to develop spiking neural networks; we are particularly interested in the photonic networks of laser neurons being developed by the Prucnal lab at Princeton (see the references from Nahmias and Shastri below), with which Gerry Angelatos is a collaborator.  However the simulator will be designed to handle any user specified fundamental neuron described by a set of ordinary differential equations (ODEs).</p>
+</div>
+<div class="section" id="brief-mathematical-theory">
+<h2>Brief Mathematical Theory<a class="headerlink" href="#brief-mathematical-theory" title="Permalink to this headline">¶</a></h2>
+<p>Generically, excitable dynamics arise when one has a stable fixed point surrounded by a finite basin of attraction, and perturbations forcing the state outside this basin of attraction result in large phase space excursions before the system returns to equilibrium (i.e. a spike). For this to be possible, a single neuron’s set of ODEs must be at least two dimensional. Excitability also requires a “slow-fast” system, where one variable evolves on a much slower timescale than the other, so the faster variable is able to grow rapidly once the system exceeds threshold, and the slower variable’s recovery leads to a refractory period between pulses.  This complicates numerical simulation as it mandates the existence of disparate time scales on the individual neuron and network levels.</p>
+<div class="figure align-center" id="id2">
+<img alt="_images/dyn_inib_A604_B5_g10.eps" src="_images/dyn_inib_A604_B5_g10.eps" />
+<p class="caption"><span class="caption-text">Simulated Yamada model dynamics showing that negative input currents can be used to inhibit a response</span></p>
+</div>
+<div class="figure align-center" id="id3">
+<img alt="_images/Neuron_Dyn.png" src="_images/Neuron_Dyn.png" />
+<p class="caption"><span class="caption-text">Measured integrated laser neuron output, showing that only a train of pulses are sufficient to push the system above threshold and produce a spike</span></p>
+</div>
+<p>A prototypical model for biological neurons is the FitzHugh Nagamo model</p>
+<p><span class="math notranslate nohighlight">\(\begin{equation} \dot{V}=f(V)-W+i_{in}(t) \\ \dot{W}=a(bV-cW) \end{equation}\)</span></p>
+<p>where <span class="math notranslate nohighlight">\(V\)</span> is the fast membrane voltage and <span class="math notranslate nohighlight">\(W\)</span> dimensionless ion conductance, a slower recovery variable (<span class="math notranslate nohighlight">\(a \ll 1\)</span>).  <span class="math notranslate nohighlight">\(i_{in}\)</span> is the input current and <span class="math notranslate nohighlight">\(f(v)\)</span> is a cubic or higher polynomial ensuring a stable fixed point for <span class="math notranslate nohighlight">\(I_{in}\)</span> below threshold.  The laser neurons studied by the Prucnal are two-section lasers which can be described by a Yamada model</p>
+<p><span class="math notranslate nohighlight">\(\begin{equation} \dot{I}=(1-G-Q)I+\beta \\ \dot{G}=\gamma(A+i_{in}(t)-G-IG) \\ \dot{Q}=\gamma(B-Q-aIQ) \end{equation}\)</span></p>
+<p>where <span class="math notranslate nohighlight">\(I\)</span> is the laser intensity and <span class="math notranslate nohighlight">\(G\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> are inversions of each section of gain material.  <span class="math notranslate nohighlight">\(i_{in}\)</span> sufficient to produce <span class="math notranslate nohighlight">\(G+Q&gt;1\)</span> produce a sharp laser pulse and the system then refracts (<span class="math notranslate nohighlight">\(\gamma \ll 1\)</span>).  Both numerically calculated and measured dynamics for this system are shown in the figures above.</p>
+</div>
+<div class="section" id="further-readings">
+<h2>Further Readings<a class="headerlink" href="#further-readings" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li>Nahmias et al, IEEE, 2013, DOI: <a class="reference external" href="https://www.researchgate.net/publication/260636128_A_Leaky_Integrate-and-Fire_Laser_Neuron_for_Ultrafast_Cognitive_Computing">10.1109/JSTQE.2013.2257700</a></li>
+<li>Shastri et al, arXiv, 2014, arXiv: <a class="reference external" href="http://arxiv.org/abs/1407.2917/">1407.2917</a></li>
+</ol>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Photonic Neuron Simulator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="classes.html">Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Background</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#problem-description">Problem Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#brief-mathematical-theory">Brief Mathematical Theory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#further-readings">Further Readings</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="usage.html" title="previous chapter">Usage</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Joe Abbate, Gerry Angelatos, Akshay Krishna.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/theory.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

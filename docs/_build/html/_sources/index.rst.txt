@@ -6,13 +6,12 @@
 Welcome to Photonic Neuron Simulator's documentation!
 =====================================================
 
-
 .. toctree::
    :maxdepth: 2
-   :caption: Classes:
 
-   neuron
-   network
+   classes
+   usage
+   theory
 
 
 Indices and tables

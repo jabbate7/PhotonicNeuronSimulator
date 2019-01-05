@@ -1,11 +1,8 @@
 Usage
 -----------
 
-Network
-=========
-
-Defining connections
-----------------------
+Defining network connections
+==============================
 
 A network can be thought of as a system of inputs and outputs. 
 

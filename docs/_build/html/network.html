@@ -13,8 +13,10 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Usage" href="usage.html" />
     <link rel="prev" title="Neuron" href="neuron.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -78,9 +80,9 @@ Then add appropriatly delayed weighted outputs from other neurons.</p>
 <dt id="network.Network.network_solve">
 <code class="descname">network_solve</code><span class="sig-paren">(</span><em>external_inputs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/network.html#Network.network_solve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#network.Network.network_solve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the network given an array of time dependent external inputs
-External inputs is a num_timesteps X num_inputs array
-outputs a  num_timesteps X num_neuron array which is the network state
-at each timestep</p>
+External inputs is a num_timesteps X num_inputs array.
+Outputs a  num_timesteps X num_neuron array which is the network state
+at each timestep.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -119,10 +121,23 @@ Each Neuron updates based on its state and its input.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>external_inputs</strong> – A 1D array with the external inputs (i.e. non-neuron inputs).</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>external_inputs</strong> – A (num_inputs X 1) array with the external inputs at the current time
+(i.e. non-neuron inputs).</td>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="network.Network.network_step_full">
+<code class="descname">network_step_full</code><span class="sig-paren">(</span><em>external_inputs</em>, <em>dim=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/network.html#Network.network_step_full"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#network.Network.network_step_full" title="Permalink to this definition">¶</a></dt>
+<dd><p>Steps the network forward in time by dt, with option to return full neuron state.
+Use with network_solve_full or to see full phase space of each neuron as evolve
+external_inputs is input array at the current time (num_inputs X 1)
+Each Neuron updates based on its state and its input
+Returns array of each neuron’s output variable (num_neurons X 1)
+To return state of all of neurons internal variables (num_neurons X neuron.dim)
+include argument dims=dimension of neuron phase space</p>
 </dd></dl>
 
 <dl class="method">
@@ -161,17 +176,24 @@ include argument dims=dimension of neuron phase space</p>
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Classes:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="neuron.html">Neuron</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Network</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="classes.html">Classes</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="neuron.html">Neuron</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Network</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="theory.html">Background</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="classes.html">Classes</a><ul>
       <li>Previous: <a href="neuron.html" title="previous chapter">Neuron</a></li>
+      <li>Next: <a href="usage.html" title="next chapter">Usage</a></li>
+  </ul></li>
   </ul></li>
 </ul>
 </div>
