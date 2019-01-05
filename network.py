@@ -7,7 +7,7 @@ import numpy as np
 class Network:
     """
     This is a Network object
-    Initiatlize it as 
+    Initialize it as 
     mynetwork = Network(neurons, weights, delays, dt)
     neurons is a list of Neuron objects
     weights is a np.array matrix of weights

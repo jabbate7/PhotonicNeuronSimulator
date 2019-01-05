@@ -138,6 +138,7 @@ class Neuron(object):
             self.hist = [self.y0] 
         else:
             self.hist = [self.y0[0]]
+
     def set_model_params(self, mkwargs):
         """
         set parameter-agnostic stepping function 
@@ -170,9 +171,9 @@ class Neuron(object):
         [right now its still just Euler]
         """
         k1 = self.f(x, self.y)
-        k2 = self.(x + , self.y + 0.5*self.dt*k1)
-        k3 = self.(x + , self.y + 0.5*self.dt*k1)
-        k4 = self.(x + , self.y + 0.5*self.dt*k1)
+        k2 = self.f(x + 0, self.y + 0.5*self.dt*k1)
+        k3 = self.f(x + 0, self.y + 0.5*self.dt*k1)
+        k4 = self.f(x + 0, self.y + 0.5*self.dt*k1)
 
         self.y = self.y + self.dt * self.f(x, self.y)
 
