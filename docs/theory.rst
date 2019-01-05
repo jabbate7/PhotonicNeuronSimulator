@@ -15,7 +15,7 @@ Brief Mathematical Theory
 
 Generically, excitable dynamics arise when one has a stable fixed point surrounded by a finite basin of attraction, and perturbations forcing the state outside this basin of attraction result in large phase space excursions before the system returns to equilibrium (i.e. a spike). For this to be possible, a single neuron's set of ODEs must be at least two dimensional. Excitability also requires a "slow-fast" system, where one variable evolves on a much slower timescale than the other, so the faster variable is able to grow rapidly once the system exceeds threshold, and the slower variable's recovery leads to a refractory period between pulses.  This complicates numerical simulation as it mandates the existence of disparate time scales on the individual neuron and network levels.
 
-.. figure:: graphics/dyn_inib_A604_B5_g10.eps
+.. figure:: graphics/dyn_inib_A604_B5_g10.png
    :align: center
 
    Simulated Yamada model dynamics showing that negative input currents can be used to inhibit a response   
