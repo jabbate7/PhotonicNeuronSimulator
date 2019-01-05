@@ -1,5 +1,0 @@
-Network
------------
-
-.. automodule:: network
-   :members:

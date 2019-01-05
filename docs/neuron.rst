@@ -1,5 +1,0 @@
-Neuron
--------
-
-.. automodule:: neuron
-   :members:

@@ -2,8 +2,18 @@
 Classes
 ==========
 
-.. toctree:: 
-   :maxdepth: 2
+Models
+---------
+.. automodule:: models
+   :members:
 
-   neuron
-   network
+Network
+---------
+.. automodule:: network
+   :members:
+
+
+Neuron
+---------
+.. automodule:: neuron
+   :members:
