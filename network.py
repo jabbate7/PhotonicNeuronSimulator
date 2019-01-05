@@ -1,20 +1,6 @@
 from neuron import Neuron
 import numpy as np
 
-#Gerrythoughts
-# delays should be in units of time, not in units of dt, since should be able to change dt without changing topography of netowrk itself
-#also might use solver with variable timestep for next iteration
-
-#history is a list, should it be a np.array?
-
-#lots of for loops
-
-#network only works with 1 dimensional neurons
-#one variable is always output, but the non-identity neurons have dimension>=2
-# I dont know whether we need to keep track of these in the history vector, probably not
-#possible solution is to always have first element of y be the state variable, and store that in ``history''
-# also will assume thats the only thing we ever care about then, and can forget about other variables
-
 
 
 # A network is a specific topology of Neurons
@@ -69,6 +55,8 @@ class Network:
         Then add appropriatly delayed weighted outputs from other neurons.        
         """
         def get_prev_output(row, col):
+            # an internal function to get the inputs needed to 
+            # update neuron states 
             if col < self.num_inputs:
                 return external_inputs[col]
             else:
@@ -80,16 +68,21 @@ class Network:
                     return self.neurons[col].hist[-1] #return final element, which is initial state
                 else:
                     return self.neurons[col].hist[self.delays[row][col]] #assumes 1d hist
-        
-        # an internal function to get the inputs needed to 
-        # update neuron states 
+        # did some baby profiling and this bit is actually slower, what the fuck, why?
+        # if np.amax(self.delays)==0: #no delays,use matrix multiplication
+        #     inputs_raw=external_inputs
+        #     for i,neuron in enumerate(self.neurons):
+        #         inputs_raw=np.append(inputs_raw, neuron.hist[0])
+        #     inputs=np.dot(self.weights, inputs_raw)
+        # else: 
         inputs=np.zeros(self.num_neurons)
         for row in range(self.num_neurons):
             for col in range(self.num_neurons+self.num_inputs):
                 if self.weights[row][col] != 0:
                     inputs[row] += self.weights[row][col]*get_prev_output(row,col)
         return inputs
-                
+
+
     def network_step(self,external_inputs):
         """
         Steps the network forward in time by dt.
@@ -136,16 +129,56 @@ class Network:
         outputs a  num_timesteps X num_neuron array which is the network state at each timestep
 
         """
-        #skeleton version for now
-        Len_t=external_inputs.shape[0]#first dimension is time
+        external_inputs = np.atleast_2d(external_inputs) #asserts 2d array 
+        #above converts 1d array (ie 1 input) to shape (1, Len_t), so catch and transpose
+        if (external_inputs.shape[0]==1): #dont use solve with single timestep anyways
+            external_inputs=external_inputs.transpose() #flip so now has shape (Len_t, 1)
+        Len_t=external_inputs.shape[0]#first dimension is time, this is num_timesteps
         msg="External input matrix needs shape ({}, {})".format(Len_t, self.num_inputs)
         assert (external_inputs.shape[1]==int(self.num_inputs)), msg
-        Net=np.zeros(Len_t, self.num_neurons)
-        Net[0, :]=self.return_states()
+        network_outputs=np.zeros([Len_t, self.num_neurons])
+        network_outputs[0, :]=self.return_states()
         for i in range(Len_t-1):
-            Net[i, :]=self.network_step(external_inputs[i, :].squeeze()) #step network forward
-        return Net
+            network_outputs[i, :]=self.network_step(external_inputs[i, :].squeeze()) #step network forward
+        return network_outputs
 
+    def network_inputs(self, network_outputs, external_inputs):
+        """
+        Returns the integrated input to each Neuron as a (num_timesteps X num_neuron) array
+        attributes are network_outputs, the (num_timesteps X num_neuron) array containing each neurons state,
+        as comupted from network_solve, and external_inputs the (num_timesteps X num_inputs) array of external inputs
+        """
+
+        def get_prev_outputv2(t, row, col):
+            # an internal function to get the inputs needed to 
+            # update neuron states 
+            if col < self.num_inputs:
+                return external_inputs[t, col]
+            else:
+                col = col - self.num_inputs
+#                import pdb; pdb.set_trace()
+                if (self.delays[row][col] )>= t:
+                    return network_outputs[0,col] 
+                else:
+                    return network_outputs[self.delays[row][col], col]
+
+        external_inputs = np.atleast_2d(external_inputs) #asserts 2d array 
+        #above converts 1d array (ie 1 input) to shape (1, Len_t), so catch and transpose
+        if (external_inputs.shape[0]==1): #dont use solve with single timestep anyways
+            external_inputs=external_inputs.transpose() #flip so now has shape (Len_t, 1)
+
+        if np.amax(self.delays)==0: #no delays, so this is easy
+            Inputs_raw=np.concatenate((external_inputs, network_outputs), axis=1).transpose()
+            Inputs=np.dot(self.weights, Inputs_raw).transpose()
+        else:
+            Len_t=network_outputs.shape[0]
+            Inputs=np.zeros([Len_t, self.num_neurons])
+            for t in range(Len_t):
+                for row in range(self.num_neurons):
+                    for col in range(self.num_neurons+self.num_inputs):
+                        Inputs[t, row]=self.weights[row,col]*get_prev_outputv2(row,col)
+
+        return Inputs
     def network_step_full(self,external_inputs, dim=1):
         """
         Steps the network forward in time by dt, with option to return full neuron state.
