@@ -13,4 +13,4 @@ You will find complete documentation at `the Read the Docs site`_.
 
 Authors
 --------
-This was a project for Princeton's APC 524 class, authored by Joe Abbate, Gerry Angelatos, and Akshay Krishna 
+This was a project for Princeton's APC 524 class, authored by Joe Abbate, Gerry Angelatos, and Akshay Krishna.
