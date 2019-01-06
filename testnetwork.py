@@ -11,7 +11,7 @@ class SimpleTestCase(unittest.TestCase):
         neur_2=Neuron()
         self.neurons=[neur_1,neur_2]
         # Weight matrix
-        # Input goes 1, 1 goes to 2, 2 goes to 3, 3 goes to output
+        # Input goes 1, 1 goes to 2, 2 goes to output
         self.weights=[[1,0,0],[0,1,0]]
         
     def testSingleNeuronNetwork(self):
@@ -36,6 +36,7 @@ class SimpleTestCase(unittest.TestCase):
         output = net.network_step(input_2)
         self.assertAlmostEqual(output[0], input_2) # neuron 1 output
         self.assertAlmostEqual(output[1], input_1) # neuron 2 output
+        
 
     def testDelayedIdentityNetwork(self):
         dt=1
