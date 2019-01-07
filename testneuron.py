@@ -3,7 +3,6 @@ import numpy as np
 import numpy.testing as npt
 import neuron
 import models
-import solvers
 import scipy.signal as sig
 
 class TestNeuronTimeDelay(unittest.TestCase):
