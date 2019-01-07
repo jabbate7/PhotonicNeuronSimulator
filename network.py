@@ -189,10 +189,10 @@ class Network:
             else:
                 col = col - self.num_inputs
 #                import pdb; pdb.set_trace()
-                if (self.delays[row][col] )>= t:
+                if (self.delays[row][col] >= t):
                     return network_outputs[0,col] 
                 else:
-                    return network_outputs[self.delays[row][col], col]
+                    return network_outputs[t-self.delays[row, col], col]
 
         external_inputs = np.atleast_2d(external_inputs) #asserts 2d array 
         #above converts 1d array (ie 1 input) to shape (1, Len_t), so catch and transpose
@@ -208,7 +208,7 @@ class Network:
             for t in range(Len_t):
                 for row in range(self.num_neurons):
                     for col in range(self.num_neurons+self.num_inputs):
-                        Inputs[t, row]=self.weights[row,col]*get_prev_outputv2(row,col)
+                        Inputs[t, row] += self.weights[row,col]*get_prev_outputv2(t,row,col)
 
         return Inputs
     def network_step_full(self,external_inputs, dim=1):

@@ -5,9 +5,10 @@ import neuron
 import models
 import scipy.signal as sig
 
-class TestNeuronTimeDelay(unittest.TestCase):
+class TestNeuronSetUp(unittest.TestCase):
     def setUp(self):
         self.neur = neuron.Neuron()
+        self.neur2=neuron.Neuron({'model': "Yamada_1", 'y0': [0., 0., 0.]})
         
     def testHist(self):
         hist_len_1=10
@@ -43,12 +44,56 @@ class TestNeuronTimeDelay(unittest.TestCase):
         self.assertAlmostEqual(self.neur.hist[0],input_3)
         self.assertAlmostEqual(self.neur.hist[1],input_2)
 
+    def testHist3D(self):
+        # make sure hist still works as expected for higher dim neurons
+        #should only store y[0] variable
+        hist_len_1=10
+        self.neur2.set_history(hist_len_1)
+        #first element of history should be y0[0]
+        self.assertAlmostEqual(self.neur2.hist[0],self.neur2.y0[0])
+
+
+        input_1=1
+        #take several steps 
+        steps=3
+        for ind in range(0, steps):
+            self.neur2.step(input_1)
+        #make sure history has updated
+        self.assertAlmostEqual(self.neur2.hist[0],self.neur2.y[0])
+        # after taking n steps, history should have n+1 entries
+        # or 10 entries if n+1>10
+        self.assertEqual(len(self.neur2.hist), min(steps+1, hist_len_1))
+
+    def testY0(self):
+        #test that resetting initial conditions works
+        #should also clear history and update y
+        hist_len_1=10
+        self.neur2.set_history(hist_len_1)
+        input_1=5.e-2
+        #take several steps 
+        steps=12
+        for ind in range(0, steps):
+            self.neur2.step(input_1)
+        #set new initial state    
+        newIC=[1.e-2, 6.5, -6.]
+        self.neur2.set_initial_state(newIC)
+        #y0, hist and y should all be this now
+        self.assertAlmostEqual(self.neur2.y0,newIC)
+        self.assertAlmostEqual(self.neur2.y,newIC)
+        self.assertAlmostEqual(self.neur2.hist[0],newIC[0])
+        self.assertEqual(len(self.neur2.hist), 1)
+
+    def testModelError(self):
+        #makes sure get exception if initialize without implemented model
+        with self.assertRaises(Exception):
+            neuron.Neuron({'model': "NotaNeuron"})
+
     def testHistError(self):
         self.neur.set_history(1)
         with self.assertRaises(Exception):
             self.neur.hist[1]
 
-class TestNeuron(unittest.TestCase):
+class TestNeuronBasic(unittest.TestCase):
     def testIdentity(self):
         # test to make sure neuron step and neuron solve works for identity neuron
         # input=output
@@ -71,8 +116,9 @@ class TestNeuron(unittest.TestCase):
         Idout=IdNeuron.solve(Idin)
         npt.assert_array_almost_equal(Idin[:-1,np.newaxis], Idout[1:])
 
-    def testYamadaSteady(self):
-        # test to verify Yamada model neuron goes to steady state
+    def testSteady(self):
+        # test toverify that Neuron evolves to steady state, 
+        # and verify that this is predicted by steady_state method
         # work with Yamada0 first
         Y0mpars={"P": 0.9, "gamma": 1e-1, "kappa": 2, "beta": 1e-2 }
         #use completely random initial state
@@ -86,7 +132,8 @@ class TestNeuron(unittest.TestCase):
         # also tests that steady state solver works
         y_steady=Y0Neuron.steady_state([Y0mpars['beta']/Y0mpars['kappa'], Y0mpars['P']])
         npt.assert_array_almost_equal(y_out[-1, :], y_steady)
-        #should also write test for another yamada type here probably
+
+        #try with another neuron model
         Y1mpars={"a": 2, "A": 6.3, "B":-6.,
             "gamma1": 1e-1, "gamma2": 1e-1, "kappa": 2, "beta": 1e-3 }
         #use completely random initial state
@@ -105,7 +152,9 @@ class TestNeuron(unittest.TestCase):
 
         npt.assert_array_almost_equal(y1_out[-1, :], y1_steady, decimal=3)
 
+class TestNeuronDynamics(unittest.TestCase):
     def testYamadaSpike(self):
+        # check if ode stepper is working by seeing if neuron evolves as predicted
         # test to verify Yamada neuron spikes if given an input above threshold
         Gaussian_pulse= lambda x, mu, sig: np.exp(-np.power(x - mu, 2.) 
             / (2 * np.power(sig, 2.)))/(np.sqrt(2*np.pi)*sig)
