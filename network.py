@@ -260,39 +260,85 @@ class Network:
             Net[i, :, :]=self.network_step_full(external_inputs[i, :].squeeze(), dim) #step network forward
         return Net
 
-    def visualize(self):
-        # visualize the network
+    def visualize_animation(self, inputs=None, outputs=None, t_mov=10):
+        """
+        Visualize the neural network as a graph. The colors of the nodes are 
+        animated in response to their outputs as a function of time
+
+        Parameters
+        -----------
+        inputs
+            The inputs to the neural network
+        outputs
+            The outputs of each neuron in the network
+        t_mov
+            approximate length of movie in seconds
+        """
+
         import networkx as nx
         import matplotlib.pyplot as plt
+        from matplotlib.animation import FuncAnimation
 
         fig, ax = plt.subplots(figsize=(6,6))
         ax.set_axis_off()
         
+        # if inputs not given, assume a default input of ones
+        if inputs is None:
+            inputs = np.ones([10000, self.num_inputs])
+        # if outputs not given, solve for outputs first
+        if outputs is None:
+            outputs = self.network_solve(inputs)
+
+        if inputs.ndim == 1: inputs = inputs[:, np.newaxis]
+        if outputs.ndim == 1: outputs = outputs[:, np.newaxis]
+
+
         g = nx.DiGraph()
         node_names = []
         edge_weights = []
 
+        # create node labels
         for n1 in range(self.num_inputs):
             node_names.append('$I_{0:d}$'.format(n1 + 1))
         for n1 in range(self.num_neurons):
             node_names.append('$N_{0:d}$'.format(n1 + 1))
-                
+
+        # set edge weights for thicknesses of lines    
         for n1 in range(self.num_neurons):
             for n2 in range(self.num_inputs + self.num_neurons):
                 if self.weights[n1, n2] != 0:
                     g.add_edges_from([(node_names[n2], node_names[self.num_inputs + n1])])
                     edge_weights.append(self.weights[n1, n2])
 
+        # scale edge weights appropriately
         edge_weights = np.array(edge_weights)
         edge_weights = 3.0 * np.abs(edge_weights) / np.max(edge_weights)
-        g_pos = nx.spectral_layout(g)
-        n_cols = []
-        for n1 in range(self.num_inputs + self.num_neurons):
-            n_cols.append(plt.cm.cool(np.random.rand()))
 
-        #nx.draw(g, with_labels=True, ax=ax, 
-        #    node_color=n_cols, node_size=1200, pos=g_pos, width=edge_weights, arrowsize=20, fontsize=18)
-        nx.draw_networkx_nodes(g, with_labels=True, ax=ax, 
-            node_color=n_cols, node_size=1200, pos=g_pos, width=edge_weights, arrowsize=20, fontsize=18)
-        nx.draw_networkx_edges(g, with_labels=True, ax=ax, 
-            node_color=n_cols, node_size=1200, pos=g_pos, width=edge_weights, arrowsize=20, fontsize=18)
+        # set node positions 
+        g_pos = nx.spectral_layout(g)
+
+        max_input = np.max(inputs) # largest value of all inputs over all time
+        max_output = np.max(outputs) # largest value of all outputs over all time
+        
+        n_cols = np.concatenate([inputs[0,:]/max_input, outputs[0,:]/max_output])
+
+        # draw edges, node labels and the nodes themselves
+        edges = nx.draw_networkx_edges(g, pos=g_pos, width=edge_weights, node_size=1200, arrowsize=20)
+        node_labels = nx.draw_networkx_labels(g, pos=g_pos, font_size=14)
+        nodes = nx.draw_networkx_nodes(g, pos=g_pos, cmap = plt.cm.viridis, node_color=n_cols, node_size=1200) 
+
+        interval = 10 # milliseconds between successive frames in the animation
+
+        #number of frames to skip
+        frame_skip_ratio = max(1, int(len(inputs) * interval / (t_mov * 1000.0) ))
+        num_frames = int(len(inputs) / frame_skip_ratio)
+
+        def update(i):
+            # The i^th frame needs to have the updated color
+            n_cols = np.concatenate([1.0*inputs[i * frame_skip_ratio,:]/max_input, 
+                1.0*outputs[i * frame_skip_ratio,:]/max_output])
+            nodes.set_array(n_cols)
+            return nodes,
+
+        anim = FuncAnimation(fig, update, frames=num_frames, interval=10, blit=True)
+        return anim
