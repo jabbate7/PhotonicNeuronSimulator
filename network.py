@@ -29,6 +29,9 @@ class Network:
         
     def __init__(self, neurons, weights, delays=None, dt=None):
         self.neurons=neurons
+
+        weights = np.atleast_2d(weights) #asserts 2d array in case only 1 neuron
+
         self.weights=weights
         if (dt is not None):
             self.dt=dt
@@ -171,7 +174,7 @@ class Network:
         network_outputs=np.zeros([Len_t, self.num_neurons])
         network_outputs[0, :]=self.return_states()
         for i in range(Len_t-1):
-            network_outputs[i, :]=self.network_step(external_inputs[i, :].squeeze()) #step network forward
+            network_outputs[i+1, :]=self.network_step(external_inputs[i, :].squeeze()) #step network forward
         return network_outputs
 
     def network_inputs(self, network_outputs, external_inputs):

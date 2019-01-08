@@ -4,6 +4,7 @@ import numpy as np
 import models
 from scipy import optimize
 import pdb
+import inspect
 
 class Neuron(object):
     """This is a Neuron object
@@ -140,9 +141,18 @@ class Neuron(object):
 
     def set_model_params(self, mkwargs):
         """
-        set parameter-agnostic stepping function 
+        set parameter-agnostic stepping function, also saves model parameters
         """
         self.f = lambda x, y : self.fun(x, y, **mkwargs)
+        self.mpars=mkwargs 
+        if len(self.mpars)==0: #if dont pass, mpars is empty
+            signature = inspect.signature(self.fun) #need to read default parameters from model
+            self.mpars= {
+                k: v.default
+                for k, v in signature.parameters.items()
+                if v.default is not inspect.Parameter.empty
+            }
+
 
 
     #### STEPPER FUNCTIONS (THE HEART OF THE ODE SOLVER) ####
