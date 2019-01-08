@@ -7,7 +7,7 @@
 # The first element of y should always be the output/Neuron state variable
 import numpy as np
 
-def Yamada_0(x, y, P=0.8, gamma=1.e-2, kappa=1, beta=1e-3):
+def Yamada_0(x, y, P=0.8, gamma=1, kappa=50, beta=5e-1):
     """
     Simplified Yamada model with gamma1=gamma2=gamma, a=1, J=G+Q, 
     y=(I, J), x is input current, P=A+B is Pump rates, 
@@ -18,7 +18,7 @@ def Yamada_0(x, y, P=0.8, gamma=1.e-2, kappa=1, beta=1e-3):
                 gamma*(P-(1+y[0])*y[1])+x ])
 
 
-def Yamada_1(x, y, a=2., A=6.5, B=-6., gamma1=1.e-2, gamma2=1e-2, kappa=1, beta=1e-3):
+def Yamada_1(x, y, a=2., A=6.5, B=-6., gamma1=1, gamma2=1, kappa=50, beta=2e-1):
     """
     full yamada model with into gain medium
     y=(I, G, Q), x is input current, A and B are Pump rates, 
@@ -29,7 +29,7 @@ def Yamada_1(x, y, a=2., A=6.5, B=-6., gamma1=1.e-2, gamma2=1e-2, kappa=1, beta=
                 gamma1*(A-(1+y[0])*y[1])+x,
                 gamma2*(B-(1+a*y[0])*y[2]) ])
 
-def Yamada_2(x, y, a=1., A=6.5, B=-6., gamma1=1.e-2, gamma2=1e-2, kappa=1, beta=1e-3):
+def Yamada_2(x, y, a=1., A=6.5, B=-6., gamma1=1, gamma2=1, kappa=50, beta=2e-1):
     """
     full yamada model with direct cavity input
     y=(I, G, Q), x is input current, A and B are Pump rates, 
