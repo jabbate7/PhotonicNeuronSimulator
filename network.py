@@ -259,4 +259,37 @@ class Network:
 
     def visualize(self):
         # visualize the network
-        pass
+        import networkx as nx
+        import matplotlib.pyplot as plt
+
+        fig, ax = plt.subplots(figsize=(6,6))
+        ax.set_axis_off()
+        
+        g = nx.DiGraph()
+        node_names = []
+        edge_weights = []
+
+        for n1 in range(self.num_inputs):
+            node_names.append('$I_{0:d}$'.format(n1 + 1))
+        for n1 in range(self.num_neurons):
+            node_names.append('$N_{0:d}$'.format(n1 + 1))
+                
+        for n1 in range(self.num_neurons):
+            for n2 in range(self.num_inputs + self.num_neurons):
+                if self.weights[n1, n2] != 0:
+                    g.add_edges_from([(node_names[n2], node_names[self.num_inputs + n1])])
+                    edge_weights.append(self.weights[n1, n2])
+
+        edge_weights = np.array(edge_weights)
+        edge_weights = 3.0 * np.abs(edge_weights) / np.max(edge_weights)
+        g_pos = nx.spectral_layout(g)
+        n_cols = []
+        for n1 in range(self.num_inputs + self.num_neurons):
+            n_cols.append(plt.cm.cool(np.random.rand()))
+
+        #nx.draw(g, with_labels=True, ax=ax, 
+        #    node_color=n_cols, node_size=1200, pos=g_pos, width=edge_weights, arrowsize=20, fontsize=18)
+        nx.draw_networkx_nodes(g, with_labels=True, ax=ax, 
+            node_color=n_cols, node_size=1200, pos=g_pos, width=edge_weights, arrowsize=20, fontsize=18)
+        nx.draw_networkx_edges(g, with_labels=True, ax=ax, 
+            node_color=n_cols, node_size=1200, pos=g_pos, width=edge_weights, arrowsize=20, fontsize=18)
