@@ -5,6 +5,7 @@ import models
 from scipy import optimize
 import pdb
 import inspect
+import matplotlib.pyplot as plt
 
 class Neuron(object):
     """This is a Neuron object
@@ -222,6 +223,88 @@ class Neuron(object):
         ODEs=lambda y: self.f(0, y)
         Root=optimize.fsolve(ODEs, yguess)
         return Root
+
+    def visualize_plot(self, x_in, output, time=None, ysteady=None, plotparams=None):
+        """
+        Generate a simple and easy to read plot of the neuron dynamics. 
+
+        After solving a neuron for a given input signal, pass this and computed
+        dynamics to generate a plot. 
+        Use returned figure handle to update plot parameters from defaults 
+        if desired.
+
+        Parameters
+        -----------
+        time
+            an array of time points which input and output are plotted over
+        x_in
+            the time-dependant input signal (1d array)
+        outputs
+            the resultant neuron phase space dynamics
+            as a (neuron.dim X num_timesteps) array
+        ysteady
+            Optional Neuron steady state to include in plot
+        plotparams
+            A dictionary of plot parameters to be used
+
+        Returns
+        ----------
+        np.array
+            A 3D array (num_timesteps X num_neuron X neuron.dim)
+             of the full state of each neuron in the network at each time.
+        """
+
+        #havent implimented default parameters yet, sue me
+
+        Len_t=output.shape[0] #length of time vector
+        msg2="input and output should both the same temporal length"
+        assert ( len(x_in)==int(Len_t) ), msg2
+        if time is None: #didnt pass time, so compute from dt and signal length TL
+            time=np.linspace(0., (Len_t-1)*self.dt, num=Len_t)
+        colors=['b', 'r', 'g', 'c'] #use these when plotting
+
+        fig=plt.figure()
+        ax1=fig.add_axes([0,0.0, 1, 0.6])
+        ax2=ax1.twinx()
+        ax3=fig.add_axes([0,.7, 1, 0.3])
+
+        if ysteady is not None: #if have steady states, plot them first
+            ax1.plot(time, ysteady[0]*np.ones(Len_t), '--'+colors[0], linewidth=2)
+            for ind in range(1, self.dim):
+                if ind==2 and (self.model == 'Yamada_1' or self.model == 'Yamada_2' ):
+                    ax2.plot(time, -ysteady[ind]*np.ones(Len_t), '--'+colors[ind], linewidth=2)
+                else:
+                    ax2.plot(time, ysteady[ind]*np.ones(Len_t), '--'+colors[ind], linewidth=2)
+
+
+        # plot Neuron state and input current
+        ax1.plot(time, output[:,0], 'b')
+        for ind in range(1, self.dim):
+            if ind==2 and (self.model == 'Yamada_1' or self.model == 'Yamada_2' ):
+                 #want to flip Q->-Q in this case
+                ax2.plot(time, -output[:, ind], '-.'+colors[ind])
+            else:
+                ax2.plot(time, output[:, ind], '-.'+colors[ind])
+
+
+        ax3.plot(time, x_in, '-k')
+
+
+
+        ax1.set_xlabel('t [$1/\gamma$]')
+        ax1.set_ylabel('$I$ [arb units]')
+        ax3.set_ylabel('$i_{in}$ [$\gamma$]')
+        ax2.set_ylabel('$J$ [arb units]')
+
+        ax1.set_xlim(time[0], time[-1])
+        ax2.set_xlim(time[0], time[-1])
+        ax3.set_xlim(time[0], time[-1])
+
+        if (self.model == 'Yamada_1' or self.model == 'Yamada_2' ): #want to flip Q->-Q in this case
+            ax2.set_ylabel('$G,\,-Q$ [arb units]')
+
+
+        return fig
 
     def step_t_to_n(self):
         """
