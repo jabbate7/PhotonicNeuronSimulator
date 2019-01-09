@@ -186,13 +186,14 @@ class Network:
         Parameters
         -----------
         external_inputs
-            A 2D array (num_timesteps X num_inputs) with the external inputs (i.e. non-neuron inputs).  
+            A 2D array (num_timesteps X num_inputs) with the 
+            external inputs (i.e. non-neuron inputs).  
 
         Returns
         ----------
         np.array
-            A 2D array (num_timesteps X num_neuron) of the state of each neuron in the network
-             at each time.
+            A 2D array (num_timesteps X num_neuron) of the state of each 
+            neuron in the network at each time.
         """
         external_inputs = np.atleast_2d(external_inputs) #asserts 2d array 
         #above converts 1d array (ie 1 input) to shape (1, Len_t), so catch and transpose
@@ -217,9 +218,9 @@ class Network:
         Parameters
         -----------
         network_outputs
-            A 2D array (num_timesteps X num_neuron) of the state of each neuron in the network
-             at each time, as calculated from network_solve.
-        external_inputs
+            A 2D array (num_timesteps X num_neuron) of the state of each 
+            neuron in the network at each time, as calculated from network_solve.
+            external_inputs
             A 2D array (num_timesteps X num_inputs) of the external inputs (i.e. non-neuron inputs).  
 
         Returns
@@ -307,7 +308,7 @@ class Network:
         ----------
         np.array
             A 3D array (num_timesteps X num_neuron X neuron.dim)
-             of the full state of each neuron in the network at each time.
+            of the full state of each neuron in the network at each time.
         """
         #skeleton version for now
         Len_t=external_inputs.shape[0]#first dimension is time
