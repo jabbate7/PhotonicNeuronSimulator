@@ -310,7 +310,6 @@ class Network:
             A 3D array (num_timesteps X num_neuron X neuron.dim)
             of the full state of each neuron in the network at each time.
         """
-        #skeleton version for now
         Len_t=external_inputs.shape[0]#first dimension is time
         msg="External input matrix needs shape ({}, {})".format(Len_t, self.num_inputs)
         assert (external_inputs.shape[1]==int(self.num_inputs)), msg
