@@ -321,7 +321,33 @@ class Network:
         return Net
 
     def visualize_plot(self, inputs, outputs, time=None, plotparams=None):
+        """
+        Generate a simple and easy to read plot of the network dynamics. 
 
+        After solving a network for a given set of inputs, pass these inputs
+        and the computed result from network_solve to generate a plot. 
+        Use returned figure handle to update plot parameters from defaults 
+        if desired.
+
+        Parameters
+        -----------
+        time
+            an array of time points which inputs and outputs are plotted over
+        inputs
+            the 2D array (num_timesteps X num_neurons) array of total inputs
+             to each neuron in the network
+        outputs
+            the 2D array (num_timesteps X num_neurons) of the state of each 
+            neuron in the network as a function of time
+        plotparams
+            A dictionary of plot parameters to be used
+
+        Returns
+        ----------
+        np.array
+            A 3D array (num_timesteps X num_neuron X neuron.dim)
+             of the full state of each neuron in the network at each time.
+        """
 
         #havent implimented default parameters yet, sue me
 
