@@ -1,5 +1,7 @@
 from neuron import Neuron
 import numpy as np
+import matplotlib.pyplot as plt
+
 
 
 
@@ -63,15 +65,21 @@ class Network:
     def generate_neuron_inputs(self, external_inputs):
         """
         Builds input array for next network step.
-        Each element in the array corresponds to a neuron in the network.
-        Calculated by summing weighted and delayed inputs to that neuron
-        For each element, first add weighted external inputs
-        Then add appropriatly delayed weighted outputs from other neurons.
+
+        Each element in the array corresponds to a neuron in the network,
+        calculated by summing all weighted and delayed inputs to that neuron.
+        For each element, first adds weighted external inputs,
+        then adds appropriatly delayed weighted outputs from other neurons.
         
         Parameters
         ----------
         external_inputs
             A 1D array with the external inputs (i.e. non-neuron inputs).
+
+        Returns
+        ----------
+        np.array
+            array of summed inputs to each neuron at current time
         """
         def get_prev_output(row, col):
             # an internal function to get the inputs needed to 
@@ -104,13 +112,20 @@ class Network:
     def network_step(self,external_inputs):
         """
         Steps the network forward in time by dt.
-        Each Neuron updates based on its state and its input.
+
+        Each Neuron updates based on its state and its input,
+        using its internal ode solver to compute its next time step.
 
         Parameters
         -----------
         external_inputs
             A (num_inputs X 1) array with the external inputs at the current time
             (i.e. non-neuron inputs).
+
+        Returns
+        ----------
+        np.array
+            The state (output) of each neuron after stepping forward by dt
         """
         external_inputs = np.atleast_1d(external_inputs)
         msg="Please specify {} inputs in an array".format(self.num_inputs)
@@ -132,14 +147,20 @@ class Network:
 
     def return_states(self, dims=None):
         """
-         Return the state of the network (by querying each neuron)
+         Return the state of the network (by querying each neuron).
+
          If want the state of all of neurons internal variables,
-         include argument dims=dimension of neuron phase space
+         include argument dims=dimension of neuron phase space.
 
          Parameters
          ----------
          dims
              Dimension of neuron
+
+        Returns
+        ----------
+        np.array
+            The state of each neuron at the current time (num_neurons X dims)  
          """
         if dims is None: 
             states = np.zeros(self.num_neurons)
@@ -154,15 +175,24 @@ class Network:
     
     def network_solve(self,external_inputs):
         """
-        Solve the network given an array of time dependent external inputs
-        External inputs is a num_timesteps X num_inputs array.
+        Solve the network given an array of time dependent external inputs.
+        
+        Steps the network forward in time for each sucessive row of external_inputs
+        using network_step, with the columns defining the input to each neuron.
+        External inputs is a num_timesteps X num_inputs array
         Outputs a  num_timesteps X num_neuron array which is the network state 
         at each timestep.
 
         Parameters
         -----------
         external_inputs
-            A 1D array with the external inputs (i.e. non-neuron inputs).
+            A 2D array (num_timesteps X num_inputs) with the external inputs (i.e. non-neuron inputs).  
+
+        Returns
+        ----------
+        np.array
+            A 2D array (num_timesteps X num_neuron) of the state of each neuron in the network
+             at each time.
         """
         external_inputs = np.atleast_2d(external_inputs) #asserts 2d array 
         #above converts 1d array (ie 1 input) to shape (1, Len_t), so catch and transpose
@@ -179,9 +209,24 @@ class Network:
 
     def network_inputs(self, network_outputs, external_inputs):
         """
-        Returns the integrated input to each Neuron as a (num_timesteps X num_neuron) array
-        attributes are network_outputs, the (num_timesteps X num_neuron) array containing each neurons state,
-        as comupted from network_solve, and external_inputs the (num_timesteps X num_inputs) array of external inputs
+        Calculate the time-dependent input to each neuron in the network
+
+        Uses the previously solved for time dependent neuron states and 
+        given external inputs (so call after network_solve).
+
+        Parameters
+        -----------
+        network_outputs
+            A 2D array (num_timesteps X num_neuron) of the state of each neuron in the network
+             at each time, as calculated from network_solve.
+        external_inputs
+            A 2D array (num_timesteps X num_inputs) of the external inputs (i.e. non-neuron inputs).  
+
+        Returns
+        ----------
+        np.array
+            A 2D array (num_timesteps X num_neuron) of the total wieghter and delayed
+            input (integrated internal and external) to each neuron at each time.
         """
 
         def get_prev_outputv2(t, row, col):
@@ -214,15 +259,28 @@ class Network:
                         Inputs[t, row] += self.weights[row,col]*get_prev_outputv2(t,row,col)
 
         return Inputs
+
     def network_step_full(self,external_inputs, dim=1):
         """
-        Steps the network forward in time by dt, with option to return full neuron state.
-        Use with network_solve_full or to see full phase space of each neuron as evolve
-        external_inputs is input array at the current time (num_inputs X 1)
-        Each Neuron updates based on its state and its input
-        Returns array of each neuron's output variable (num_neurons X 1)
-        To return state of all of neurons internal variables (num_neurons X neuron.dim)
+        Steps the network forward in time by dt, just as network_step,
+         with option to return full neuron state.
+
+        Use with network_solve_full or to see full phase space of each neuron as evolve.
+        To return state of all of neurons internal variables (num_neurons X neuron.dim), 
         include argument dims=dimension of neuron phase space
+
+        Parameters
+        -----------
+        external_inputs
+            A (num_inputs X 1) array with the external inputs at the current time
+            (i.e. non-neuron inputs).
+        dims
+            Dimension of neuron state (1 if only want output)
+
+        Returns
+        ----------
+        np.array
+            The dims-dimensional state of each neuron after stepping forward by dt
         """
         external_inputs = np.atleast_1d(external_inputs)
         msg="Please specify {} inputs in an array".format(self.num_inputs)
@@ -237,16 +295,19 @@ class Network:
     def network_solve_full(self,external_inputs):
         """
         Solve the network given an array of time dependent external inputs,
-        and return the entire dynamical phase space of each neuron, rather 
-        than just the state variable.
-        External inputs is a num_timesteps X num_inputs array.
-        Outputs a num_timesteps X num_neuron X neuron.dim array which is the
-        network state at each timestep
+        as in network_solve, but returns the full phase space of each neuron, 
+        rather than just the state variable.
 
         Parameters
         -----------
         external_inputs
-            A 1D array with the external inputs (i.e. non-neuron inputs).
+            A 2D array (num_timesteps X num_inputs) with the external inputs (i.e. non-neuron inputs).  
+
+        Returns
+        ----------
+        np.array
+            A 3D array (num_timesteps X num_neuron X neuron.dim)
+             of the full state of each neuron in the network at each time.
         """
         #skeleton version for now
         Len_t=external_inputs.shape[0]#first dimension is time
@@ -259,6 +320,68 @@ class Network:
         for i in range(Len_t-1):
             Net[i, :, :]=self.network_step_full(external_inputs[i, :].squeeze(), dim) #step network forward
         return Net
+
+    def visualize_plot(self, inputs, outputs, time=None, plotparams=None):
+        """
+        Generate a simple and easy to read plot of the network dynamics. 
+
+        After solving a network for a given set of inputs, pass these inputs
+        and the computed result from network_solve to generate a plot. 
+        Use returned figure handle to update plot parameters from defaults 
+        if desired.
+
+        Parameters
+        -----------
+        time
+            an array of time points which inputs and outputs are plotted over
+        inputs
+            the 2D array (num_timesteps X num_neurons) array of total inputs
+             to each neuron in the network
+        outputs
+            the 2D array (num_timesteps X num_neurons) of the state of each 
+            neuron in the network as a function of time
+        plotparams
+            A dictionary of plot parameters to be used
+
+        Returns
+        ----------
+        np.array
+            A 3D array (num_timesteps X num_neuron X neuron.dim)
+             of the full state of each neuron in the network at each time.
+        """
+
+        #havent implimented default parameters yet, sue me
+
+        msg1="outputs expected to have {} Neurons".format(self.num_neurons)
+        assert (outputs.shape[1]==int(self.num_neurons) ), msg1
+        Len_t=outputs.shape[0] #length of time vector
+        msg2="inputs and outputs should both the same temporal length"
+        assert (inputs.shape[0]==int(Len_t) ), msg2
+        if time is None: #didnt pass time, so compute from dt and signal length TL
+            time=np.linspace(0., (Len_t-1)*self.dt, num=Len_t)
+
+        fig=plt.figure()
+        ax1=fig.add_axes([0,0.0, 1, 0.6])
+        ax2=fig.add_axes([0,.7, 1, 0.3])
+
+        # plot Neuron state and input current
+        for ind in range(self.num_neurons):
+            ax1.plot(time, outputs[:,ind],label='Neuron {}'.format(ind+1))
+            ax2.plot(time, inputs[:,ind])
+            
+        ax1.set_xlabel('t [$1/\gamma$]')
+        ax1.set_ylabel('$I$ [arb units]')
+        ax2.set_ylabel('$i_{in}$ [$\gamma$]')
+
+        ax1.set_xlim(time[0], time[-1])
+        ax2.set_xlim(time[0], time[-1])
+        ax1.legend()
+
+        return fig
+
+
+
+
 
     def visualize_animation(self, inputs=None, outputs=None, t_mov=10):
         """
