@@ -379,14 +379,10 @@ class Network:
         return fig
 
 
-
-
-
     def visualize_animation(self, inputs=None, outputs=None, t_mov=10):
         """
         Visualize the neural network as a graph. The colors of the nodes are 
         animated in response to their outputs as a function of time
-
         Parameters
         -----------
         inputs
@@ -422,8 +418,10 @@ class Network:
         # create node labels
         for n1 in range(self.num_inputs):
             node_names.append('$I_{0:d}$'.format(n1 + 1))
+            g.add_node('$I_{0:d}$'.format(n1 + 1))
         for n1 in range(self.num_neurons):
             node_names.append('$N_{0:d}$'.format(n1 + 1))
+            g.add_node('$N_{0:d}$'.format(n1 + 1))
 
         # set edge weights for thicknesses of lines    
         for n1 in range(self.num_neurons):
@@ -446,10 +444,16 @@ class Network:
 
         # draw edges, node labels and the nodes themselves
         edges = nx.draw_networkx_edges(g, pos=g_pos, width=edge_weights, node_size=1200, arrowsize=20)
-        node_labels = nx.draw_networkx_labels(g, pos=g_pos, font_size=14)
-        nodes = nx.draw_networkx_nodes(g, pos=g_pos, cmap = plt.cm.viridis, node_color=n_cols, node_size=1200) 
+        node_labels = nx.draw_networkx_labels(g, pos=g_pos, font_size=14, font_color='w')
+        nodes_inp = nx.draw_networkx_nodes(g, pos=g_pos, nodelist=list(g.nodes())[:self.num_inputs],
+            cmap = plt.cm.viridis, node_color=n_cols[:self.num_inputs], vmin=0.0, vmax=1.0, node_size=1200, node_shape='s') 
+        nodes_neu = nx.draw_networkx_nodes(g, pos=g_pos, nodelist=list(g.nodes())[self.num_inputs:],
+            cmap = plt.cm.viridis, node_color=n_cols[self.num_inputs:], vmin=0.0, vmax=1.0, node_size=1200, node_shape='o')
 
         interval = 10 # milliseconds between successive frames in the animation
+        #title = ax.set_title('$t = 0.000$')
+
+        time_arr = np.arange(len(inputs)) * self.dt
 
         #number of frames to skip
         frame_skip_ratio = max(1, int(len(inputs) * interval / (t_mov * 1000.0) ))
@@ -459,8 +463,11 @@ class Network:
             # The i^th frame needs to have the updated color
             n_cols = np.concatenate([1.0*inputs[i * frame_skip_ratio,:]/max_input, 
                 1.0*outputs[i * frame_skip_ratio,:]/max_output])
-            nodes.set_array(n_cols)
-            return nodes,
+            nodes_inp.set_array(n_cols[:self.num_inputs])
+            nodes_neu.set_array(n_cols[self.num_inputs:])
+            #title.set_text('$t = {0:.3f}$'.format(time_arr[i * frame_skip_ratio]))
+
+            return nodes_inp, nodes_neu#, title
 
         anim = FuncAnimation(fig, update, frames=num_frames, interval=10, blit=True)
         return anim
