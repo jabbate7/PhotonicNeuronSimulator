@@ -1,6 +1,9 @@
 Welcome to Photonic Neural Network Simulator
 ==============================================
 
+.. image:: https://travis-ci.org/jabbate7/PhotonicNeuronSimulator.svg?branch=master
+    :target: https://travis-ci.org/jabbate7/PhotonicNeuronSimulator
+
 Purpose
 --------
 This project allows researchers to easily model and visualize arbitrary networks of "neurons".
