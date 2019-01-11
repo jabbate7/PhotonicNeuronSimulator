@@ -4,5 +4,5 @@ python:
 cache: pip
 install: "pip install -r requirements.txt"
 before_install:
-  - chmod +x build.sh
+  - chmod +x test.sh
 script: ./test.sh
