@@ -184,6 +184,40 @@ class TestNeuronDynamics(unittest.TestCase):
         self.assertGreaterEqual(np.max(y1_out[:,0]), 0.5*Y1mpars["kappa"]/Y1mpars["gamma1"])
         npt.assert_array_almost_equal(y1_out[-1, :], y1_steady, decimal=2)
 
+    def test_RK4_vs_Euler(self):
+        # check if RK4 stepper works in the same way as the Euler stepper
+        Gaussian_pulse= lambda x, mu, sig: np.exp(-np.power(x - mu, 2.) 
+            / (2 * np.power(sig, 2.)))/(np.sqrt(2*np.pi)*sig)
+
+        Y1mpars={"a": 2, "A": 6.5, "B":-6., "gamma1": 1e-1,
+         "gamma2": 1e-1, "kappa": 2, "beta": 1e-2 }
+        y1_steady_est=[Y1mpars['beta']/Y1mpars['kappa'],
+            Y1mpars['A'],Y1mpars['B'] ]
+        Y1params={"model" : "Yamada_1", "y0": y1_steady_est,
+        "dt": 1.e-2, 'mpar': Y1mpars, 'solver': 'Euler'} #close enough to steady state
+        Y1Neuron=neuron.Neuron(Y1params)
+        y1_steady=Y1Neuron.steady_state(y1_steady_est)
+
+        Y1params['solver'] = 'RK4'
+        Y2Neuron=neuron.Neuron(Y1params)
+        y2_steady=Y1Neuron.steady_state(y1_steady_est)
+
+        #create time signal
+        t1_end=10./Y1mpars["gamma1"]; #atleast this long
+        N1=int(np.ceil(t1_end/Y1Neuron.dt))
+        time1=np.linspace(0.,(N1-1)*Y1Neuron.dt, num=N1 )
+        x1=Gaussian_pulse(time1, 0.5/Y1mpars["gamma1"], 1.)
+
+        # create neuron, solve
+        y1_out=Y1Neuron.solve(x1)
+        y2_out=Y2Neuron.solve(x1)
+
+        # calculate L2 norm of the difference of the two 
+        L2_err = np.sum((y1_out[3:] - y2_out[:-3])**2) / np.sum((y1_out)**2)
+
+        # should throw an error if the outputs are significantly different
+        self.assertTrue(L2_err < 1e-5)
+
 
     def testYamadaPulsing(self):
         # test to verify Yamada pulses if given continuous input above threshold
