@@ -469,3 +469,50 @@ class Network:
 
         anim = FuncAnimation(fig, update, frames=num_frames, interval=10, blit=True)
         return anim
+
+
+def main():
+    """
+    If this python script is called directly, create a basic three neuron feed-forward network and 
+    run it. This is useful for profiling purposes
+    """
+
+    Gaussian_pulse= lambda x, mu, sig: np.exp(-np.power(x - mu, 2.) 
+    / (2 * np.power(sig, 2.)))/(np.sqrt(2*np.pi)*sig)
+
+    Y1mpars={"a": 2, "A": 6.5, "B":-6., "gamma1": 1,
+             "gamma2": 1, "kappa": 50, "beta": 5e-1 }#these are the model parameters
+    y1_steady_est=[Y1mpars['beta']/Y1mpars['kappa'],
+                   Y1mpars['A'],Y1mpars['B'] ] #quick estimate of ss
+    Y1params={"model" : "Yamada_1", "y0": y1_steady_est,
+        "dt": 1e-2, 'mpar': Y1mpars} #neuron parameters
+    y1_steady=Neuron(Y1params).steady_state(y1_steady_est)
+    Y1params["y0"]=y1_steady #change model parameters so that starts w this ss
+    
+    neurons1=[Neuron(Y1params), Neuron(Y1params), Neuron(Y1params)]
+
+    #Input->Neuron1->Neuron2 -> Neuron3
+    weights1=np.array([[1,0,0, 0],[0,0.1,0, 0], [0,0,0.1, 0.]])
+    delays1=np.array([[0., 0., 0.], [0.5, 0., 0.],[0.,0.5, 0.]])
+    #create network
+    network1=Network(neurons1, weights1, delays1)
+
+
+    #create time signal, set params in terms of gamma1
+    t1_end=11./Y1mpars["gamma1"]; #atleast this long
+    N1=int(np.ceil(t1_end/network1.dt)) #this many points
+    time1=np.linspace(0.,(N1-1)*network1.dt, num=N1 )
+    #input signal is series of Gaussians, first is below threshold
+    in1=np.zeros(N1)
+    in1+=0.2*Gaussian_pulse(time1, 0.1/Y1mpars["gamma1"], 5.e-2/Y1mpars["gamma1"])
+    in1+=0.4*Gaussian_pulse(time1, 1./Y1mpars["gamma1"], 5.e-2/Y1mpars["gamma1"])
+    in1+=0.4*(Gaussian_pulse(time1, 7./Y1mpars["gamma1"], 5.e-2/Y1mpars["gamma1"])*
+              np.random.normal(1, 1,N1))
+
+    output1=network1.network_solve(in1) #solve the network
+
+    #computes output for plotting
+    input1=network1.network_inputs(output1, in1)
+
+if __name__ == '__main__':
+    main()
