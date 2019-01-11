@@ -2,9 +2,6 @@ from neuron import Neuron
 import numpy as np
 import matplotlib.pyplot as plt
 
-
-
-
 # A network is a specific topology of Neurons
 class Network:
     """

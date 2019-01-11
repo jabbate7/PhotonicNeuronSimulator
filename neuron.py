@@ -3,7 +3,6 @@
 import numpy as np
 import models
 from scipy import optimize
-import pdb
 import inspect
 import matplotlib.pyplot as plt
 
