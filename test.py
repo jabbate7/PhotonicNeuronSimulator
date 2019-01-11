@@ -226,7 +226,7 @@ class TestNeuronDynamics(unittest.TestCase):
 
         self.assertGreaterEqual(peaktimes.size, 2) #assert spiked faster in part 2
 
-class SimpleTestCase(unittest.TestCase):
+class TestNetworkBasics(unittest.TestCase):
     def setUp(self):
         # List of Neuron objects
         neur_1=Neuron()
@@ -292,7 +292,7 @@ class SimpleTestCase(unittest.TestCase):
         self.assertAlmostEqual(output[0], input_3)
         self.assertAlmostEqual(output[1], input_1)
 
-class YamadaTestCase(unittest.TestCase):
+class TestNetworkYamada(unittest.TestCase):
     def setUp(self):
         params={'model': "Yamada_1", 'dt': 5.e-3}
         params["y0"]=Neuron(params).steady_state([0., 6.5, -6.])
