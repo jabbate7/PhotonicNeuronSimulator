@@ -8,6 +8,13 @@ Purpose
 --------
 This project allows researchers to easily model and visualize arbitrary networks of "neurons".
 
+Installation Requirements
+--------------------------
+In addition to the pip packages specified in requirements.txt, you must install 
+`ffmpeg`_ to create animations. 
+
+.. _ffmpeg: https://www.ffmpeg.org/
+
 Documentation
 --------------
 You will find complete documentation at `the Read the Docs site`_.
