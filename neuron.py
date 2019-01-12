@@ -177,14 +177,17 @@ class Neuron(object):
     def step_RK4(self, x):
         """
         RK4 stepper insted of the Euler stepper above
-        [right now its still just Euler]
+        
         """
-        k1 = self.f(x, self.y)
-        k2 = self.f(x + 0, self.y + 0.5*self.dt*k1)
-        k3 = self.f(x + 0, self.y + 0.5*self.dt*k1)
-        k4 = self.f(x + 0, self.y + 0.5*self.dt*k1)
+        # RK4 needs to know previous inputs as well
+        if not hasattr(self, 'x_prev'): self.x_prev = x
+        k1 = self.f(self.x_prev, self.y)
+        k2 = self.f(0.5*(x + self.x_prev), self.y + 0.5*self.dt*k1)
+        k3 = self.f(0.5*(x + self.x_prev), self.y + 0.5*self.dt*k2)
+        k4 = self.f(x, self.y + self.dt*k3)
+        self.x_prev = x
 
-        self.y = self.y + self.dt * self.f(x, self.y)
+        self.y = self.y + (k1/6 + k2/3 + k3/3 + k4/6) *self.dt
 
         if self.dim>1:
             self.hist.insert(0,self.y[0].copy()) #first element is "state" variable 

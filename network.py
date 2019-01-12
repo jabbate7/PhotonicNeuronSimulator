@@ -1,5 +1,6 @@
 from neuron import Neuron
 import numpy as np
+import scipy as sp
 import matplotlib.pyplot as plt
 
 # A network is a specific topology of Neurons
@@ -469,3 +470,69 @@ class Network:
 
         anim = FuncAnimation(fig, update, frames=num_frames, interval=10, blit=True)
         return anim
+
+
+def main():
+    """
+    If this python script is called directly, create a 16-neuron reservoir computer network and 
+    run it. This is useful for profiling purposes
+    """
+
+    Gaussian_pulse= lambda x, mu, sig: np.exp(-np.power(x - mu, 2.) 
+    / (2 * np.power(sig, 2.)))/(np.sqrt(2*np.pi)*sig)
+
+    Y1mpars={"a": 2, "A": 6.5, "B":-6., "gamma1": 1,
+             "gamma2": 1, "kappa": 50, "beta": 5e-1 }#these are the model parameters
+    y1_steady_est=[Y1mpars['beta']/Y1mpars['kappa'],
+                   Y1mpars['A'],Y1mpars['B'] ] #quick estimate of ss
+    Y1params={"model" : "Yamada_1", "y0": y1_steady_est,
+        "dt": 1e-2, 'mpar': Y1mpars} #neuron parameters
+    y1_steady=Neuron(Y1params).steady_state(y1_steady_est)
+    Y1params["y0"]=y1_steady #change model parameters so that starts w this ss
+    
+    num_neurons=16 #number of neurons in reservoir computer
+    num_inputs=4
+    #sparsity of reservoir-reservoir coupling matrix 0=empy, 1=full
+
+    #make a list of 16 neurons
+    neuronsR=[]
+    for ind in range(num_neurons):
+        neuronsR.append(Neuron(Y1params))
+        
+    #set up coupling matrix between neurons
+    WRR_density=0.25
+    WRR_maxeig=0.3 #scale largest eigenvalue of WRR matrix
+    #pull from random matrix centered at 0
+    WRR=sp.sparse.random(num_neurons, num_neurons, WRR_density,
+                         data_rvs=lambda s: np.random.uniform(-0.5, 0.5, size=s))
+    eigWRR, eigvecWRR = sp.sparse.linalg.eigs(WRR)
+    eigMax = np.max(np.abs(eigWRR))
+    WRR = (WRR_maxeig/eigMax)*WRR
+    # set up WIR (input to neuron matrix)
+    #also choose randomly distributed matrix
+    WIR =-1 + (1+1)*np.random.rand(num_neurons,num_inputs)
+
+    weightsR=sp.sparse.hstack((WIR, WRR)).toarray()
+
+    #also use random delay matrix: [0,1)
+    delaysR=np.random.rand(num_neurons, num_neurons)
+
+    #create network
+    networkR=Network(neuronsR, weightsR, delaysR, dt=0.001)
+
+
+    tR_end=20./Y1mpars["gamma1"]; #atleast this long
+    NR=int(np.ceil(tR_end/networkR.dt)) #this many points
+    timeR=np.linspace(0.,(NR-1)*networkR.dt, num=NR )
+    inR=np.zeros([NR, num_inputs])
+    inR[:, 0]=0.2*(np.heaviside(timeR, 2))#*(0.9+0.2*np.random.rand(timeR)))
+    inR[:, 1]+=0.2*(np.heaviside(timeR, 4))#*(0.9+0.2*np.random.rand(timeR)))
+    inR[:, 2]+=0.2*(np.heaviside(timeR, 6))#*(0.9+0.2*np.random.rand(timeR)))
+    inR[:, 3]+=0.2*(np.heaviside(timeR, 8))#*(0.9+0.2*np.random.rand(timeR)))
+
+    # the solution step
+    outputR=networkR.network_solve(inR)
+    
+
+if __name__ == '__main__':
+    main()
