@@ -12,6 +12,7 @@ Welcome to Photonic Neuron Simulator's documentation!
    classes
    usage
    theory
+   decisions
 
 
 Indices and tables
