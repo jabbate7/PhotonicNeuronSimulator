@@ -419,7 +419,7 @@ class Network:
             g.add_node('$I_{0:d}$'.format(n1 + 1))
         for n1 in range(self.num_neurons):
             node_names.append('$N_{0:d}$'.format(n1 + 1))
-            g.add_node('$N_{0:d}$'.format(n1 + 1))
+            g.add_node('$N_{'+'{0:d}'.format(n1 + 1)+'$}')
 
         # set edge weights for thicknesses of lines    
         for n1 in range(self.num_neurons):
@@ -433,7 +433,7 @@ class Network:
         edge_weights = 3.0 * np.abs(edge_weights) / np.max(edge_weights)
 
         # set node positions 
-        g_pos = nx.spectral_layout(g)
+        g_pos = nx.fruchterman_reingold_layout(g)
 
         max_input = np.max(inputs) # largest value of all inputs over all time
         max_output = np.max(outputs) # largest value of all outputs over all time

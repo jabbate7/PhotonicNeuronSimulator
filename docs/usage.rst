@@ -1,5 +1,13 @@
-Usage
+Implementation overview
 -----------
+
+With our Photonic Neural Network Simulator, our aim is to provide an easy-to-use and versatile interface to simulate the time dynamics of excitable neurons and networks of these neurons.
+
+The primary building blocks of our implementation are:
+
+- a ``neuron`` class: this class defines an object that takes a time-varying input :math:`x(t)` , and emits a time-varying output :math:`y(t)`.This class contains attributes that allow one to specify the type of model to be solved, the ODE solver to be used (currently support Euler and RK4), the size of the time-step :math:`dt` and so on. The neuron class also contains functions that allow us to find the zero-input steady-state of the neuron, as well as stepping the neuron's history forward in time.
+- a ``network`` class: this class defines a network formed by connecting neurons. A network is specified by a list of neuron objects. The connenctions between external inputs to the network and the neurons in the network as well as the connections among the neurons themselves are specified by two adjacency matrices. One matrix specifies the weights of the edges in the graph. The weights control to what extent signals are amplified or attenuated as they propagate. Another matrix specifies time delays from one node to another. The following section describes how to define these connections.
+- a ``models.py``: this file contains various neuron models, corresponding to different physical implementations of excitable neurons. Currently support three kinds of Yamada models, the Fitz-Hugh-Nagumo model, and an identity (input = output) model.
 
 Defining network connections
 ==============================
