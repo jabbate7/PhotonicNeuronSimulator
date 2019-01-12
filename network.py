@@ -1,5 +1,6 @@
 from neuron import Neuron
 import numpy as np
+import scipy as sp
 import matplotlib.pyplot as plt
 
 # A network is a specific topology of Neurons
@@ -473,7 +474,7 @@ class Network:
 
 def main():
     """
-    If this python script is called directly, create a basic three neuron feed-forward network and 
+    If this python script is called directly, create a 16-neuron reservoir computer network and 
     run it. This is useful for profiling purposes
     """
 
@@ -489,30 +490,49 @@ def main():
     y1_steady=Neuron(Y1params).steady_state(y1_steady_est)
     Y1params["y0"]=y1_steady #change model parameters so that starts w this ss
     
-    neurons1=[Neuron(Y1params), Neuron(Y1params), Neuron(Y1params)]
+    num_neurons=16 #number of neurons in reservoir computer
+    num_inputs=4
+    #sparsity of reservoir-reservoir coupling matrix 0=empy, 1=full
 
-    #Input->Neuron1->Neuron2 -> Neuron3
-    weights1=np.array([[1,0,0, 0],[0,0.1,0, 0], [0,0,0.1, 0.]])
-    delays1=np.array([[0., 0., 0.], [0.5, 0., 0.],[0.,0.5, 0.]])
+    #make a list of 16 neurons
+    neuronsR=[]
+    for ind in range(num_neurons):
+        neuronsR.append(Neuron(Y1params))
+        
+    #set up coupling matrix between neurons
+    WRR_density=0.25
+    WRR_maxeig=0.3 #scale largest eigenvalue of WRR matrix
+    #pull from random matrix centered at 0
+    WRR=sp.sparse.random(num_neurons, num_neurons, WRR_density,
+                         data_rvs=lambda s: np.random.uniform(-0.5, 0.5, size=s))
+    eigWRR, eigvecWRR = sp.sparse.linalg.eigs(WRR)
+    eigMax = np.max(np.abs(eigWRR))
+    WRR = (WRR_maxeig/eigMax)*WRR
+    # set up WIR (input to neuron matrix)
+    #also choose randomly distributed matrix
+    WIR =-1 + (1+1)*np.random.rand(num_neurons,num_inputs)
+
+    weightsR=sp.sparse.hstack((WIR, WRR)).toarray()
+
+    #also use random delay matrix: [0,1)
+    delaysR=np.random.rand(num_neurons, num_neurons)
+
     #create network
-    network1=Network(neurons1, weights1, delays1)
+    networkR=Network(neuronsR, weightsR, delaysR, dt=0.001)
 
 
-    #create time signal, set params in terms of gamma1
-    t1_end=11./Y1mpars["gamma1"]; #atleast this long
-    N1=int(np.ceil(t1_end/network1.dt)) #this many points
-    time1=np.linspace(0.,(N1-1)*network1.dt, num=N1 )
-    #input signal is series of Gaussians, first is below threshold
-    in1=np.zeros(N1)
-    in1+=0.2*Gaussian_pulse(time1, 0.1/Y1mpars["gamma1"], 5.e-2/Y1mpars["gamma1"])
-    in1+=0.4*Gaussian_pulse(time1, 1./Y1mpars["gamma1"], 5.e-2/Y1mpars["gamma1"])
-    in1+=0.4*(Gaussian_pulse(time1, 7./Y1mpars["gamma1"], 5.e-2/Y1mpars["gamma1"])*
-              np.random.normal(1, 1,N1))
+    tR_end=20./Y1mpars["gamma1"]; #atleast this long
+    NR=int(np.ceil(tR_end/networkR.dt)) #this many points
+    timeR=np.linspace(0.,(NR-1)*networkR.dt, num=NR )
+    inR=np.zeros([NR, num_inputs])
+    inR[:, 0]=0.2*(np.heaviside(timeR, 2))#*(0.9+0.2*np.random.rand(timeR)))
+    inR[:, 1]+=0.2*(np.heaviside(timeR, 4))#*(0.9+0.2*np.random.rand(timeR)))
+    inR[:, 2]+=0.2*(np.heaviside(timeR, 6))#*(0.9+0.2*np.random.rand(timeR)))
+    inR[:, 3]+=0.2*(np.heaviside(timeR, 8))#*(0.9+0.2*np.random.rand(timeR)))
 
-    output1=network1.network_solve(in1) #solve the network
-
-    #computes output for plotting
-    input1=network1.network_inputs(output1, in1)
+    # the solution step
+    outputR=networkR.network_solve(inR)
+    
 
 if __name__ == '__main__':
     main()
