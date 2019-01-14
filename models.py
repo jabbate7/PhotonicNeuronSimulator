@@ -22,11 +22,11 @@ def Yamada_1(x, y, a=2., A=6.5, B=-6., gamma1=1, gamma2=1, kappa=50, beta=2e-1):
     """
     Full yamada model with input into gain medium.
 
-    :math:'y=(I, G, Q)', where I is the laser field intensity, and G and Q are gain and 
-    saturable absorber inversions.  :math:'x=i_{in}' is input current, A and B are gain and absorber 
-    pump rates, a is the medium gain ratio, :math:'\gamma_i' are material decay rates, :math:'\kappa' is cavity loss rate, and
-    :math:'\beta' is photon noise:
-    :math:`\begin{equation} \dot{I}=(1-G-Q)I+\beta \\
+    .. math:: 'y=(I, G, Q)', where I is the laser field intensity, and G and Q are gain and 
+    saturable absorber inversions.  .. math::'x=i_{in}' is input current, A and B are gain and absorber 
+    pump rates, a is the medium gain ratio, .. math::'\gamma_i' are material decay rates, .. math::'\kappa' is cavity loss rate, and
+    .. math::'\beta' is photon noise:
+    .. math::`\begin{equation} \dot{I}=(1-G-Q)I+\beta \\
     \dot{G}=\gamma_1(A+i_{in}(t)-G-IG) \\
     \dot{Q}=\gamma_2(B-Q-aIQ) \end{equation}`
     """
