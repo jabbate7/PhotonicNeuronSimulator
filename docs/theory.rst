@@ -15,15 +15,15 @@ Brief Mathematical Theory
 
 Generically, excitable dynamics arise when one has a stable fixed point surrounded by a finite basin of attraction, and perturbations forcing the state outside this basin of attraction result in large phase space excursions before the system returns to equilibrium (i.e. a spike). For this to be possible, a single neuron's set of ODEs must be at least two dimensional. Excitability also requires a "slow-fast" system, where one variable evolves on a much slower timescale than the other, so the faster variable is able to grow rapidly once the system exceeds threshold, and the slower variable's recovery leads to a refractory period between pulses.  This complicates numerical simulation as it mandates the existence of disparate time scales on the individual neuron and network levels.
 
-.. figure:: graphics/dyn_inib_A604_B5_g10.png
+.. figure:: graphics/cooincidence_neuron_dyn.png
    :align: center
 
-   Simulated Yamada model dynamics showing that negative input currents can be used to inhibit a response   
+   Simulated Yamada model dynamics showing a neuron operating as a coincidence detector, only firing when two positive pulses arrive in quick succession.  Note also that a negative input pulse supresses the neuron and prevents firing.
 
 .. figure:: graphics/Neuron_Dyn.png
    :align: center
 
-   Measured integrated laser neuron output, showing that only a train of pulses are sufficient to push the system above threshold and produce a spike
+   Network of 4 neurons connected in a feed-forward configuration, where the firing of each  neuron causes its sucessor to fire at a later time.  The upper axis shows the integrated input to each netowrk, while the lower the neuron output.  Note the network is not excited for an input below threshold, and the network's delay can be seen by comparing the inputs and outputs. 
 
 A prototypical model for biological neurons is the FitzHugh Nagamo model
 
@@ -35,7 +35,8 @@ where :math:`V` is the fast membrane voltage and :math:`W` dimensionless ion con
 
 where :math:`I` is the laser intensity and :math:`G` and :math:`Q` are inversions of each section of gain material.  :math:`i_{in}` sufficient to produce :math:`G+Q>1` produce a sharp laser pulse and the system then refracts (:math:`\gamma \ll 1`).  Both numerically calculated and measured dynamics for this system are shown in the figures above.
 
+Maybe a motivational paragraph here describing why networks are interesting and why this is an interesting problem to solve
 Further Readings
 -------------------
 1. Nahmias et al, IEEE, 2013, DOI: `10.1109/JSTQE.2013.2257700 <https://www.researchgate.net/publication/260636128_A_Leaky_Integrate-and-Fire_Laser_Neuron_for_Ultrafast_Cognitive_Computing>`_
-2. Shastri et al, arXiv, 2014, arXiv: `1407.2917 <http://arxiv.org/abs/1407.2917/>`_ 
+2. Shastri et al, arXiv, 2014, arXiv: `1407.2917 <http://arxiv.org/abs/1407.2917/>`_ '[/'[[
