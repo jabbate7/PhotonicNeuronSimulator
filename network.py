@@ -319,7 +319,7 @@ class Network:
             Net[i, :, :]=self.network_step_full(external_inputs[i, :].squeeze(), dim) #step network forward
         return Net
 
-    def visualize_plot(self, inputs, outputs, time=None, plotparams=None):
+    def visualize_plot(self, inputs, outputs, time=None):
         """
         Generate a simple and easy to read plot of the network dynamics. 
 
@@ -338,17 +338,12 @@ class Network:
         outputs
             the 2D array (num_timesteps X num_neurons) of the state of each 
             neuron in the network as a function of time
-        plotparams
-            A dictionary of plot parameters to be used
-
+       
         Returns
         ----------
-        np.array
-            A 3D array (num_timesteps X num_neuron X neuron.dim)
-             of the full state of each neuron in the network at each time.
+        matplotlib.figure.Figure
+            A matplotlib figure instance showing the netork dynamics
         """
-
-        #havent implimented default parameters yet, sue me
 
         msg1="outputs expected to have {} Neurons".format(self.num_neurons)
         assert (outputs.shape[1]==int(self.num_neurons) ), msg1
@@ -364,8 +359,12 @@ class Network:
 
         # plot Neuron state and input current
         for ind in range(self.num_neurons):
-            ax1.plot(time, outputs[:,ind],label='Neuron {}'.format(ind+1))
-            ax2.plot(time, inputs[:,ind])
+            if 7<=ind<15: #default color cycle only has 7 colors
+                ax1.plot(time, outputs[:,ind], '-.', label='Neuron {}'.format(ind+1))
+                ax2.plot(time, inputs[:,ind], '-.')
+            else:
+                ax1.plot(time, outputs[:,ind],label='Neuron {}'.format(ind+1))
+                ax2.plot(time, inputs[:,ind])
             
         ax1.set_xlabel('t [$1/\gamma$]')
         ax1.set_ylabel('$I$ [arb units]')
@@ -390,6 +389,11 @@ class Network:
             The outputs of each neuron in the network
         t_mov
             approximate length of movie in seconds
+
+        Returns
+        ----------
+        matplotlib.animation.FuncAnimation
+            A matplotlib animation of the network dynamics
         """
 
         import networkx as nx
@@ -420,7 +424,7 @@ class Network:
             g.add_node('$I_{0:d}$'.format(n1 + 1))
         for n1 in range(self.num_neurons):
             node_names.append('$N_{0:d}$'.format(n1 + 1))
-            g.add_node('$N_{'+'{0:d}'.format(n1 + 1)+'$}')
+            g.add_node('$N_{'+'{0:d}'.format(n1 + 1)+'}$')
 
         # set edge weights for thicknesses of lines    
         for n1 in range(self.num_neurons):
