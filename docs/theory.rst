@@ -4,7 +4,7 @@ Background
 Problem Description
 -----------------------
 
-Neuromorphic or cognitive computing is a rapidly growing frontier of research which seeks to develop new computational processors inspired by the architecture of the brain.  In such systems, the fundamental processing unit is a "neuron", which responds to inputs above threshold with a large amplitude pulse (a spike) before refracting to its rest state.  As with their biological counterpart, collections of these neurons are connected to form a network:  the state of a given neuron is relayed to its neighbours via a "synapse" which applies a configurable weight and delay to its output signal. These weighted and delayed outputs are summed at a given neuron to forms its input, which governs its spiking behaviour.  
+Neuromorphic or cognitive computing is a rapidly growing frontier of research which seeks to develop new computational processors inspired by the architecture of the brain.  In such systems, the fundamental processing unit is a "neuron", which responds to inputs above threshold with a large amplitude pulse (a spike) before refracting to its rest state.  As with their biological counterpart, collections of these neurons are connected to form a network:  the state of a given neuron is relayed to its neighbors via a "synapse" which applies a configurable weight and delay to its output signal. These weighted and delayed outputs are summed at a given neuron to forms its input, which governs its spiking behavior.  
 
 In this project we will design a modular spiking neural network simulator.  For an arbitrary fundamental neuron model and network topology (number of neurons, synaptic weights and delays) we plan on computing its dynamics and visualizing each neuron's state. 
 
@@ -18,12 +18,8 @@ Generically, excitable dynamics arise when one has a stable fixed point surround
 .. figure:: graphics/cooincidence_neuron_dyn.png
    :align: center
 
-   Simulated Yamada model dynamics showing a neuron operating as a coincidence detector, only firing when two positive pulses arrive in quick succession.  Top axis shows input current while bottom is neuron output in blue and inversion in red.  Note also that a negative input pulse supresses the neuron and prevents firing.
+   Simulated Yamada model dynamics showing a neuron operating as a coincidence detector, only firing when two positive pulses arrive in quick succession.  Top axis shows input current while bottom is neuron output in blue and inversion in red.  Note also that a negative input pulse suppresses the neuron and prevents firing.
 
-.. figure:: graphics/feed_forward_network_Dyn.png
-   :align: center
-
-   Network of 4 neurons connected in a feed-forward configuration, where the firing of each  neuron causes its sucessor to fire at a later time.  The upper axis shows the integrated input to each netowrk, while the lower the neuron output.  Note the network is not excited for an input below threshold, and the network's delay can be seen by comparing the inputs and outputs. 
 
 A prototypical model for biological neurons is the FitzHugh Nagamo model
 
@@ -33,9 +29,14 @@ where :math:`V` is the fast membrane voltage and :math:`W` dimensionless ion con
 
 :math:`\begin{equation} \dot{I}=(1-G-Q)I+\beta \\ \dot{G}=\gamma(A+i_{in}(t)-G-IG) \\ \dot{Q}=\gamma(B-Q-aIQ) \end{equation}`
 
-where :math:`I` is the laser intensity and :math:`G` and :math:`Q` are inversions of each section of gain material.  :math:`i_{in}` sufficient to produce :math:`G+Q>1` produce a sharp laser pulse and the system then refracts (:math:`\gamma \ll 1`).  Both numerically calculated and measured dynamics for this system are shown in the figures above.
+where :math:`I` is the laser intensity and :math:`G` and :math:`Q` are inversions of each section of gain material.  :math:`i_{in}` sufficient to produce :math:`G+Q>1` produce a sharp laser pulse and the system then refracts (:math:`\gamma \ll 1`).  The dynamics of a Yamada model neuron operating as a coincidence detector as calculated via our simulator are plotted above, where :math:`J=G+Q` for simplicity.
 
-Maybe a motivational paragraph here describing why networks are interesting and why this is an interesting problem to solve
+.. figure:: graphics/feed_forward_network_dyn.png
+   :align: center
+
+   Network of 4 neurons connected in a feed-forward configuration, where the firing of each  neuron causes its successor to fire at a later time.  The upper axis shows the integrated input to each network, while the lower the neuron output.  Note the network is not excited for an input below threshold, and the network's delay can be seen by comparing the inputs and outputs. 
+
+As noted in the problem description, the behavior of spiking neural networks is more interesting and potentially relevant than that of individual neurons, and the primary purpose of our simulator is the calculation and visualization of network dynamics.  In addition to an arbitrary collection of neurons and external inputs, each network has a unique topology which describes the connectivity between neurons.  Specifically, the weight each neuron's output caries at a given neuron's input, and its delay between being emitted and arriving at that target neuron are non-trivial network parameters that govern its dynamics.  We are thus interested in solving a high-dimensional (neuron dimension by number of neurons) system of delay-differential equations.  In addition, our suite includes methods to intuitively visualize the network dynamics, both as a static plot and a dynamic network animation.
 
 Further Readings
 -------------------
