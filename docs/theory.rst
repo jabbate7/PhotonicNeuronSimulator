@@ -18,9 +18,9 @@ Generically, excitable dynamics arise when one has a stable fixed point surround
 .. figure:: graphics/cooincidence_neuron_dyn.png
    :align: center
 
-   Simulated Yamada model dynamics showing a neuron operating as a coincidence detector, only firing when two positive pulses arrive in quick succession.  Note also that a negative input pulse supresses the neuron and prevents firing.
+   Simulated Yamada model dynamics showing a neuron operating as a coincidence detector, only firing when two positive pulses arrive in quick succession.  Top axis shows input current while bottom is neuron output in blue and inversion in red.  Note also that a negative input pulse supresses the neuron and prevents firing.
 
-.. figure:: graphics/Neuron_Dyn.png
+.. figure:: graphics/feed_forward_network_Dyn.png
    :align: center
 
    Network of 4 neurons connected in a feed-forward configuration, where the firing of each  neuron causes its sucessor to fire at a later time.  The upper axis shows the integrated input to each netowrk, while the lower the neuron output.  Note the network is not excited for an input below threshold, and the network's delay can be seen by comparing the inputs and outputs. 
@@ -36,6 +36,7 @@ where :math:`V` is the fast membrane voltage and :math:`W` dimensionless ion con
 where :math:`I` is the laser intensity and :math:`G` and :math:`Q` are inversions of each section of gain material.  :math:`i_{in}` sufficient to produce :math:`G+Q>1` produce a sharp laser pulse and the system then refracts (:math:`\gamma \ll 1`).  Both numerically calculated and measured dynamics for this system are shown in the figures above.
 
 Maybe a motivational paragraph here describing why networks are interesting and why this is an interesting problem to solve
+
 Further Readings
 -------------------
 1. Nahmias et al, IEEE, 2013, DOI: `10.1109/JSTQE.2013.2257700 <https://www.researchgate.net/publication/260636128_A_Leaky_Integrate-and-Fire_Laser_Neuron_for_Ultrafast_Cognitive_Computing>`_
