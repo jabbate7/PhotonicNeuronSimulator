@@ -1,5 +1,8 @@
-Implementation overview
------------
+Implementation 
+----------------
+
+Overview
+=========
 
 With our Photonic Neural Network Simulator, our aim is to provide an easy-to-use and versatile interface to simulate the time dynamics of excitable neurons and networks of these neurons.
 

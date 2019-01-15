@@ -9,6 +9,7 @@ Welcome to Photonic Neuron Simulator's documentation!
 .. toctree::
    :maxdepth: 2
 
+   cover_page
    classes
    usage
    theory
