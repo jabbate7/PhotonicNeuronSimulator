@@ -424,7 +424,8 @@ class Network:
             g.add_node('$I_{0:d}$'.format(n1 + 1))
         for n1 in range(self.num_neurons):
             node_names.append('$N_{0:d}$'.format(n1 + 1))
-            g.add_node('$N_{'+'{0:d}'.format(n1 + 1)+'}$')
+            g.add_node('$N_{0:d}$'.format(n1 + 1))
+            #g.add_node('$N_{'+str(n1+1)+'}$')
 
         # set edge weights for thicknesses of lines    
         for n1 in range(self.num_neurons):
