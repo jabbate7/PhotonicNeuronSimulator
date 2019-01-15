@@ -352,6 +352,38 @@ class TestNetworkYamada(unittest.TestCase):
         self.assertAlmostEqual(np.mean(output), np.mean(output2)) 
         #assert entire output signals are the same!
         npt.assert_array_almost_equal(output.squeeze(),output2) 
+    def testFullNetwork(self):
+        #create, solve, and visualize small random network
+        #ensures main methods run and work together without producing errors
+
+        num_inputs=2
+        num_neurons=3
+        neurons=[]
+        for ind in range(num_neurons): #create neuron list
+            neurons.append(Neuron(self.params))
+
+        #weights and delays are random matrices [0, 1)
+        delays=np.random.rand(num_neurons, num_neurons)
+        #shift weights so inputs are positive, connections random
+        weights=np.concatenate((np.random.rand(num_neurons, num_inputs),
+                       np.random.rand(num_neurons, num_neurons)-0.5), axis=1 )
+
+        network=Network(neurons, weights, delays)
+
+        tlength=2000
+        #random external input as well
+        external_input=0.3*(1+np.random.rand(tlength, num_inputs) )
+        time=np.arange(0, tlength*network.dt, network.dt)
+
+        outputs = network.network_solve(external_input)
+
+        total_inputs = network.network_inputs(outputs, external_input)
+
+        testfig = network.visualize_plot(total_inputs, outputs, time)
+
+        testan = network.visualize_animation(inputs=total_inputs, outputs=outputs)
+
+
 
 if __name__ == "__main__":
     unittest.main()
