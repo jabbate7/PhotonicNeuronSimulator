@@ -428,11 +428,11 @@ class Network:
 
         # create node labels
         for n1 in range(self.num_inputs):
-            node_names.append('$I_{0:d}$'.format(n1 + 1))
-            g.add_node('$I_{0:d}$'.format(n1 + 1))
+            node_names.append('$I_{{ {0:d} }}$'.format(n1 + 1)) #latex needs double braces
+            g.add_node('$I_{{ {0:d} }}$'.format(n1 + 1))
         for n1 in range(self.num_neurons):
-            node_names.append('$N_{0:d}$'.format(n1 + 1))
-            g.add_node('$N_{0:d}$'.format(n1 + 1))
+            node_names.append('$N_{{ {0:d} }}$'.format(n1 + 1))
+            g.add_node('$N_{{ {0:d} }}$'.format(n1 + 1))
             #g.add_node('$N_{'+str(n1+1)+'}$')
 
         # set edge weights for thicknesses of lines    
@@ -480,7 +480,7 @@ class Network:
             #title.set_text('$t = {0:.3f}$'.format(time_arr[i * frame_skip_ratio]))
 
             return nodes_inp, nodes_neu#, title
-
+        
         anim = FuncAnimation(fig, update, frames=num_frames, interval=10, blit=True)
         return anim
 
@@ -542,7 +542,8 @@ def main():
     outputR=networkR.network_solve(inR)
     # compute inputs to each neuron
     inputR=networkR.network_inputs(network_outputs=outputR, external_inputs=inR)
-    an3 = networkR.visualize_animation(inputs=inR, outputs=outputR)
+    figR=networkR.visualize_plot(inputR, outputR, timeR)
+    anR = networkR.visualize_animation(inputs=inR, outputs=outputR)
 
 
     
