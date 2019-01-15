@@ -7,27 +7,63 @@ import inspect
 import matplotlib.pyplot as plt
 
 class Neuron(object):
-    """This is a Neuron object
-    Initialize it as 
-    myneuron = Neuron() # default, or
-    myneuron = Neuron(params)
-    where params is a dict with parameter values, for example
-    params = {'model': "FitzHughNagumo", 'y0': [0.0, 0.0]}
-    params = {'model': "Yamada0", 'mpar': {'P': 0.8, 'gamma': 1.e-2, 'kappa': 1, 'beta': 1e-3} }
+    """
+    A Neuron object is a specific instance of a neuron model, 
+    which can exits on its own or as a member of a network.
+
+    A Neuron is initialized with ``myneuron = Neuron(params)``, where 
+    params is an optional dict of parameter values for myneuron. 
+    Once initialized, the primary method of a neuron object is to calculate 
+    its evolution given an input.
+
+    Parameters
+    ----------
+    params
+        A dictionary of parameter values, elements described below:
+    model
+        name of the evolution function :math:`\\dot{y}=f(x,y)` 
+        implemented by neuron and described in ``models.py``.
+        defaults to "identity"
+    solver
+        name of ODE solver used to update neuron state and 
+        solve its dynamics, default is "Euler"
+    dt
+        time-step to use in ODE solver, defaults to 1.e-4
+    hist_len
+        length of list of previous neuron states to store. 
+        default is 10
+    y0
+        initial state of neuron, defaults to zeros
+    mpar
+        a dictionary of model specific parameters describing 
+        a specific neuron instance.  See ``models.py`` for a
+        given model's parameters
+
+    Attributes
+    ----------
+    y
+        current neuron state
+    y0
+        initial sate of neuron
+    hist
+        list of previous neuron states:  
+        hist[0] = y(t); hist[1] = y(t-dt); and so on.
+        For multidimensional neurons, history only stores output/state variable.
+    hist_len
+        length of hist list, 
+        number of previous states neuron stores
+    dt
+        time step
+    model
+        name of the evolution function :math:`\\dot{y}=f(x,y)` 
+    mpars
+        list of parameters of evolution function
+    dim
+        dimensionality of neuron phase space
 
     """
     
     def __init__(self, params={}):
-        # constructor to initialize a Neuron
-        # attributes:
-        # -- model    : name of function implemented by neuron
-        # -- dim      : dimensionality of phase space of model
-        # -- dt       : time step
-        # -- y0       : initial
-        # -- y        : current (most recent) state  
-        # -- hist     : list of most recent states 
-        #               hist[0] = y(t); hist[1] = y(t-dt); and so on
-        # -- hist_len : length of time history to be stored
 
         self.model = params.get("model", "identity")
         self.solver = params.get("solver", "Euler")
@@ -37,9 +73,6 @@ class Neuron(object):
         #pdb.set_trace()
 
         # set initial state, default: all zeros
-
-        # some BS merge conflict here
-        ## self.set_initial_state(np.array(params.get("y0", np.zeros(self.dim))))
         self.set_initial_state(params.get("y0", np.zeros(self.dim)))
         # set history, do it after creating y0 and model
         self.set_history(params.get("hist_len", 10))
@@ -63,10 +96,14 @@ class Neuron(object):
         return "Neuron of type {0:s}".format(self.model)
 
     #####  CONSTRUCTOR HELPER FUNCTIONS  #####
-
     def set_dt(self, dt):
         """ 
-        Set timestep for Neuron
+        Constructor helper function, sets time-step for neuron
+
+        Parameters
+        ----------
+        dt
+            time-step for neuron ODE solver
         """
         self.dt = dt
         # for the identity, the step parameter h should be the same as dt
@@ -102,7 +139,13 @@ class Neuron(object):
 
     def set_initial_state(self, y0=None):
         """
-        set initial conditions
+        Sets neuron initial state and clears neuron history
+
+        Parameters
+        ----------
+        y0
+            new initial state for neuron
+            
         """
         if y0 is None:
             y0 = np.zeros(self.dim)
@@ -129,9 +172,13 @@ class Neuron(object):
 
     def set_history(self, hist_len):
         """
-        Constructs empty history list of length hist_len,
-        to be populated with previous neuron states.
-        For multidemensional Neurons, history only stores output/state variable.
+        Constructor helper function, 
+        initializes empty history list of previous neuron states
+
+        Parameters
+        ----------
+        hist_len
+            length of history list
         """
         self.hist_len = hist_len
         if np.isscalar(self.y0):
@@ -141,7 +188,12 @@ class Neuron(object):
 
     def set_model_params(self, mkwargs):
         """
-        set parameter-agnostic stepping function, also saves model parameters
+        Constructor helper function, sets neuron's evolution function
+
+        Parameters
+        ----------
+        mkwargs
+            model specific list of parameters for evolution function
         """
         self.f = lambda x, y : self.fun(x, y, **mkwargs)
         self.mpars=mkwargs 
@@ -158,9 +210,22 @@ class Neuron(object):
     #### STEPPER FUNCTIONS (THE HEART OF THE ODE SOLVER) ####
 
     def step_Euler(self, x):
-        """ get the output at the next time step, given an input x
-            update history ...
-            y_{n+1} = y_n + h f(x_n, y_n)
+        """
+        Steps the neuron forward one time step using Euler's method
+
+        Computes the state of the neuron at the next time step, given
+        the current input signal and neuron state: 
+        :math:`y(n+1)=y(n)+dt\\cdot f(x(n), y(n))`
+
+        Parameters
+        ----------
+        x
+            the input signal at the current time (a scalar)
+
+        Returns
+        ----------
+        np.array
+            The state of the neuron at t+dt
         """
         self.y = self.y + self.dt * self.f(x, self.y)
         if self.dim>1:
@@ -176,8 +241,22 @@ class Neuron(object):
 
     def step_RK4(self, x):
         """
-        RK4 stepper insted of the Euler stepper above
-        
+        Steps the neuron forward one time step using 
+        the fourth-order Runge-Kutta method
+
+        Computes the state of the neuron at the next time step, given
+        the current input signal and neuron state: 
+        :math:`y(n+1)=y(n)+dt\\cdot f(x(n), y(n))`
+
+        Parameters
+        ----------
+        x
+            the input signal at the current time (a scalar)
+
+        Returns
+        ----------
+        np.array
+            The state of the neuron at t+dt        
         """
         # RK4 needs to know previous inputs as well
         if not hasattr(self, 'x_prev'): self.x_prev = x
@@ -204,7 +283,24 @@ class Neuron(object):
 
     def solve(self, x):
         """ 
-        Calculate the entire dynamics of the neuron with input x(t).
+        Calculates the neuron's dynamics in response to an input signal x(t).
+
+        Uses the solver defined in ``solver`` to step trough each element of x(t)
+        and compute the resultant neuron evolution.
+
+
+        Parameters
+        ----------
+        x
+            the time-dependent input signal (1d array)
+
+
+        Returns
+        ----------
+        np.array
+            the resultant neuron phase space dynamics
+            as a (neuron.dim X num_timesteps) array                
+
         """
         y_out = np.zeros((len(x), self.dim))
         y_out[0,:] = self.y # initial state
@@ -215,10 +311,24 @@ class Neuron(object):
 
     def steady_state(self, yguess=None):
         """
-        solve for the no-input steady state of the neuron.
-        Choose yguess "wisely" to avoid unphysical roots.
-        Recommended to test steady state by ruling solve(np.zeros(N))
-        and seeing if state stays stationary.
+        solve for the no-input steady-state of the neuron.
+
+        Choose yguess "wisely" to avoid unphysical roots.  We recommend
+        testing steady state by running ``myneuron.solve(np.zeros(N))``
+        and verifying the dynamics converge to the calculated steady-state
+
+        Parameters
+        ----------
+        yguess
+            an initial guess of the steady-state; method will return fixed-point
+            closest to yguess.  Default is ``myneuron.y0``
+
+        Returns
+        ----------
+        np.array
+            The steady state of the neuron as calculated by setting 
+            :math:`f(0, y)=0` and solving for y nearest to yguess               
+
         """
         if yguess is None:
             yguess=self.y0
@@ -226,7 +336,7 @@ class Neuron(object):
         Root=optimize.fsolve(ODEs, yguess)
         return Root
 
-    def visualize_plot(self, x_in, output, time=None, ysteady=None, plotparams=None):
+    def visualize_plot(self, x_in, output, time=None, ysteady=None):
         """
         Generate a simple and easy to read plot of the neuron dynamics. 
 
@@ -240,23 +350,18 @@ class Neuron(object):
         time
             an array of time points which input and output are plotted over
         x_in
-            the time-dependant input signal (1d array)
+            the time-dependent input signal (1d array)
         outputs
             the resultant neuron phase space dynamics
             as a (neuron.dim X num_timesteps) array
         ysteady
-            Optional Neuron steady state to include in plot
-        plotparams
-            A dictionary of plot parameters to be used
+            Optional neuron steady state to include in plot
 
         Returns
         ----------
-        np.array
-            A 3D array (num_timesteps X num_neuron X neuron.dim)
-             of the full state of each neuron in the network at each time.
+        matplotlib.figure.Figure
+            A matplotlib figure instance showing the network dynamics
         """
-
-        #havent implimented default parameters yet, sue me
 
         Len_t=output.shape[0] #length of time vector
         msg2="input and output should both the same temporal length"
@@ -278,7 +383,6 @@ class Neuron(object):
                 else:
                     ax2.plot(time, ysteady[ind]*np.ones(Len_t), '--'+colors[ind], linewidth=2)
 
-
         # plot Neuron state and input current
         ax1.plot(time, output[:,0], 'b')
         for ind in range(1, self.dim):
@@ -287,11 +391,7 @@ class Neuron(object):
                 ax2.plot(time, -output[:, ind], '-.'+colors[ind])
             else:
                 ax2.plot(time, output[:, ind], '-.'+colors[ind])
-
-
         ax3.plot(time, x_in, '-k')
-
-
 
         ax1.set_xlabel('t [$1/\gamma$]')
         ax1.set_ylabel('$I$ [arb units]')
@@ -305,12 +405,4 @@ class Neuron(object):
         if (self.model == 'Yamada_1' or self.model == 'Yamada_2' ): #want to flip Q->-Q in this case
             ax2.set_ylabel('$G,\,-Q$ [arb units]')
 
-
         return fig
-
-    def step_t_to_n(self):
-        """
-        convert time to discrete units by dividing a time interval by the 
-        size of a time step
-        """
-        pass

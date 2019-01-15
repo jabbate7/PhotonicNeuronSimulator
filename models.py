@@ -48,7 +48,7 @@ def Yamada_0(x, y, P=0.8, gamma=1, kappa=50, beta=5e-1):
 
 def Yamada_2(x, y, a=1., A=6.5, B=-6., gamma1=1, gamma2=1, kappa=50, beta=2e-1):
     """
-     **Yamada_1** with input to cavity directly instead of gain medium.
+    **Yamada_1** with input to cavity directly instead of gain medium.
 
     .. math:: 
         \\dot{I} &= -\\kappa(1-G-Q)I+\\beta )+i_{in}(t)
@@ -84,8 +84,8 @@ def identity(x, y, h):
     """
     The identity neuron, output=input
 
-    A neuron which returns the input at the previous timestep,
-    i.e. :math:`y(n+1)=x(n)`.  h is the ODE solver timestep and we thus
+    A neuron which returns the input at the previous time-step,
+    i.e. :math:`y(n+1)=x(n)`.  h is the ODE solver time-step and we thus
     have the ODE:
 
     .. math::

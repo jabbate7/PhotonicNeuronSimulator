@@ -13,7 +13,7 @@ class Network:
     and time delays. 
 
     Once initialized, a Network's primary method is to take in a set of signals
-    at a given timestep and reveal the updated neuron states. 
+    at a given time-step and reveal the updated neuron states. 
 
     Parameters
     ----------
@@ -25,6 +25,23 @@ class Network:
         An np.array matrix of time delays, in absolute time.
     dt
         The time step for propagating the network.
+
+    Attributes
+    ----------
+    neurons
+        a list of the neuron objects which make up the network
+    weights
+        the np.array matrix of weights for the network 
+        (num_neuron X num_neuron+num_inputs)
+    delays
+        The np.array matrix of delays for the network, in units
+        of dt (num_neuron X num_neuron)
+    dt
+        the time step for propagating the network.
+    num_inputs
+        the number of external inputs in the network
+    num_neurons
+        the number of neurons in the network
     """
         
     def __init__(self, neurons, weights, delays=None, dt=None):
@@ -67,7 +84,7 @@ class Network:
         Each element in the array corresponds to a neuron in the network,
         calculated by summing all weighted and delayed inputs to that neuron.
         For each element, first adds weighted external inputs,
-        then adds appropriatly delayed weighted outputs from other neurons.
+        then adds appropriately delayed weighted outputs from other neurons.
         
         Parameters
         ----------
@@ -80,25 +97,17 @@ class Network:
             array of summed inputs to each neuron at current time
         """
         def get_prev_output(row, col):
-            # an internal function to get the inputs needed to 
-            # update neuron states 
+            # an internal function to get the inputs needed to update neuron states 
             if col < self.num_inputs:
                 return external_inputs[col]
             else:
                 col = col - self.num_inputs
                 if (self.delays[row][col] >= len(self.neurons[col].hist)):
-                    #to save space, history starts almost empty and is populated untill full
+                    #to save space, history starts almost empty and is populated until full
                     # assumption is that neuron was in initial state for all times before calculation
                     return self.neurons[col].hist[-1] #return final element, which is initial state
                 else:
                     return self.neurons[col].hist[self.delays[row][col]] #assumes 1d hist
-        # did some baby profiling and this bit is actually slower, what the fuck, why?
-        # if np.amax(self.delays)==0: #no delays,use matrix multiplication
-        #     inputs_raw=external_inputs
-        #     for i,neuron in enumerate(self.neurons):
-        #         inputs_raw=np.append(inputs_raw, neuron.hist[0])
-        #     inputs=np.dot(self.weights, inputs_raw)
-        # else: 
         inputs=np.zeros(self.num_neurons)
         for row in range(self.num_neurons):
             for col in range(self.num_neurons+self.num_inputs):
@@ -175,11 +184,11 @@ class Network:
         """
         Solve the network given an array of time dependent external inputs.
         
-        Steps the network forward in time for each sucessive row of external_inputs
+        Steps the network forward in time for each successive row of external_inputs
         using network_step, with the columns defining the input to each neuron.
         External inputs is a num_timesteps X num_inputs array
         Outputs a  num_timesteps X num_neuron array which is the network state 
-        at each timestep.
+        at each time-step.
 
         Parameters
         -----------
@@ -229,8 +238,7 @@ class Network:
         """
 
         def get_prev_outputv2(t, row, col):
-            # an internal function to get the inputs needed to 
-            # update neuron states 
+            # an internal function to get the inputs needed to update neuron states 
             if col < self.num_inputs:
                 return external_inputs[t, col]
             else:
@@ -497,7 +505,7 @@ def main():
     
     num_neurons=16 #number of neurons in reservoir computer
     num_inputs=4
-    #sparsity of reservoir-reservoir coupling matrix 0=empy, 1=full
+    #sparsity of reservoir-reservoir coupling matrix 0=empty, 1=full
 
     #make a list of 16 neurons
     neuronsR=[]
@@ -516,27 +524,27 @@ def main():
     # set up WIR (input to neuron matrix)
     #also choose randomly distributed matrix
     WIR =-1 + (1+1)*np.random.rand(num_neurons,num_inputs)
-
     weightsR=sp.sparse.hstack((WIR, WRR)).toarray()
-
     #also use random delay matrix: [0,1)
     delaysR=np.random.rand(num_neurons, num_neurons)
-
     #create network
     networkR=Network(neuronsR, weightsR, delaysR, dt=0.001)
-
-
     tR_end=20./Y1mpars["gamma1"]; #atleast this long
     NR=int(np.ceil(tR_end/networkR.dt)) #this many points
     timeR=np.linspace(0.,(NR-1)*networkR.dt, num=NR )
     inR=np.zeros([NR, num_inputs])
-    inR[:, 0]=0.2*(np.heaviside(timeR, 2))#*(0.9+0.2*np.random.rand(timeR)))
-    inR[:, 1]+=0.2*(np.heaviside(timeR, 4))#*(0.9+0.2*np.random.rand(timeR)))
-    inR[:, 2]+=0.2*(np.heaviside(timeR, 6))#*(0.9+0.2*np.random.rand(timeR)))
-    inR[:, 3]+=0.2*(np.heaviside(timeR, 8))#*(0.9+0.2*np.random.rand(timeR)))
+    inR[:, 0]=0.2*(np.heaviside(timeR, 2))*(0.9+0.2*np.random.rand(NR))
+    inR[:, 1]+=0.3*(np.heaviside(timeR, 6))*(0.8+0.4*np.random.rand(NR))
+    inR[:, 2]+=0.3*(np.heaviside(timeR, 10))*(-0.5+1.*np.random.rand(NR))
+    inR[:, 3]+=0.2*(np.heaviside(timeR, 14))
 
     # the solution step
     outputR=networkR.network_solve(inR)
+    # compute inputs to each neuron
+    inputR=networkR.network_inputs(network_outputs=outputR, external_inputs=inR)
+    an3 = networkR.visualize_animation(inputs=inR, outputs=outputR)
+
+
     
 
 if __name__ == '__main__':
