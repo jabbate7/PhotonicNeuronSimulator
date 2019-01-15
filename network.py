@@ -342,7 +342,7 @@ class Network:
         Returns
         ----------
         matplotlib.figure.Figure
-            A matplotlib figure instance showing the netork dynamics
+            A matplotlib figure instance showing the network dynamics
         """
 
         msg1="outputs expected to have {} Neurons".format(self.num_neurons)
