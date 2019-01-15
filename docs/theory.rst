@@ -41,4 +41,4 @@ As noted in the problem description, the behavior of spiking neural networks is 
 Further Readings
 -------------------
 1. Nahmias et al, IEEE, 2013, DOI: `10.1109/JSTQE.2013.2257700 <https://www.researchgate.net/publication/260636128_A_Leaky_Integrate-and-Fire_Laser_Neuron_for_Ultrafast_Cognitive_Computing>`_
-2. Shastri et al, arXiv, 2014, arXiv: `1407.2917 <http://arxiv.org/abs/1407.2917/>`_ '[/'[[
+2. Shastri et al, arXiv, 2014, arXiv: `1407.2917 <http://arxiv.org/abs/1407.2917/>
