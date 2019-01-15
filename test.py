@@ -372,8 +372,8 @@ class TestNetworkYamada(unittest.TestCase):
 
         tlength=2000
         #random external input as well
-        external_input=0.3*(1+np.random.rand(tlength, num_inputs) )
-        time=np.arange(0, tlength*network.dt, network.dt)
+        external_input=0.3*(1.+np.random.rand(tlength, num_inputs) )
+        time=np.arange(0., tlength*network.dt, network.dt)
 
         outputs = network.network_solve(external_input)
 
