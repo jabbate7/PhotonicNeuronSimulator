@@ -13,6 +13,12 @@ is available at
 Documentation is generated via `Sphinx
 <http://www.sphinx-doc.org/en/master/>`_.
 
+In addition to the pip packages specified in requirements.txt, you must install 
+`ffmpeg`_ to create animations. 
+
+.. _ffmpeg: https://www.ffmpeg.org/
+
+
 Testing
 --------
 
